@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pydisc"
+description = "An API wrapper for Discord"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+authors = [{ name = "DA344" }]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+Documentation = "https://discordpy.readthedocs.io/en/latest/"
+"Issue tracker" = "https://github.com/Rapptz/discord.py/issues"
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.txt" }
+
+[tool.setuptools]
+packages = [
+    "pydisc",
+    "pydisc.cache",
+    "pydisc.commands",
+    "pydisc.channels",
+]
+include-package-data = true
+
+[tool.black]
+line-length = 125
+skip-string-normalization = true
+
+[tool.coverage.run]
+omit = [
+    "*/_types.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "@overload",
+]
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+combine_star = true
+line_length = 125
+
+[tool.pyright]
+include = [
+    "pydisc",
+    "pydisc/cache",
+    "pydisc/commands",
+    "pydisc/channels",
+    "pydisc/events",
+    "pydisc/websockets",
+]
+exclude = [
+    "**/__pycache__",
+    "build",
+    "dist",
+]
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnusedImport = "warning"
+reportUnnecessaryIsInstance = false
+reportPrivateUsage = false
+reportIncompatibleVariableOverride = false
+reportIncompatibleMethodOverride = false
+reportUnusedFunction = false
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
