@@ -171,10 +171,10 @@ class CacheProtocol(Protocol):
         """Removes a soundboard sound from the cache."""
         raise NotImplementedError
 
-    def store_component(self, component: Component) -> None:
+    def store_component(self, component: Component, /) -> None:
         """Stores a component in the cache."""
         raise NotImplementedError
 
-    def remove_component(self, custom_id: str) -> Component | None:
+    def remove_component(self, custom_id: str, /) -> Component | None:
         """Removes a component from the cache."""
         raise NotImplementedError
