@@ -62,8 +62,17 @@ class ApplicationInfo(Hashable):
         """Whether this bot is public."""
         self.requires_code_grant: bool = data["bot_require_code_grant"]
         """Whether the app's bot will join after fully completing the OAuth2 grant flow."""
-        self.bot: PartialUser | None = PartialUser.from_dict(data.get("bot"), cache)
+
+        bot_data: dict[str, Any] | None = data.get("bot")
+        self.bot: PartialUser | None = cache.get_user((bot_data or {}).get("id"))
         """The bot user associated with this application."""
+
+        if self.bot is None:
+            self.bot = PartialUser.from_dict(bot_data, cache)
+        else:
+            if bot_data is not None:
+                self.bot.__init__(bot_data, cache)
+
         self.terms_of_service_url: str | None = data.get("terms_of_service_url")
         """The terms of service url of this application."""
         self.privacy_policy_url: str | None = data.get("privacy_policy_url")
@@ -76,11 +85,16 @@ class ApplicationInfo(Hashable):
         """The team the app belongs to."""
         self.guild_id: int | None = _get_snowflake("guild_id", data)
         """The guild associated with the app."""
-        self.guild: PartialGuild | None = PartialGuild.from_dict(data.get("guild"))
-        """The partial guild associated with this application.
+        self.guild: PartialGuild | None = cache.get_guild(self.guild_id)
+        """The partial guild associated with this application."""
 
-        To get the full guild, use :attr:`cached_guild`.
-        """
+        guild_data: dict[str, Any] | None = data.get("guild")
+        if self.guild is None:
+            self.guild = PartialGuild.from_dict(guild_data, cache)
+        else:
+            if guild_data is not None:
+                self.guild.__init__(guild_data, cache)
+
         self.primary_sku_id: int | None = _get_snowflake("primary_sku_id", data)
         """The application's id of the SKU created in its game, if applicable."""
         self.slug: str | None = data.get("slug")
@@ -109,13 +123,11 @@ class ApplicationInfo(Hashable):
         """The custom insatll URL for this application."""
         self._integration_configs: dict[Literal["0", "1"], dict[str, Any]] = data.get("integration_types_config", {})
 
-    @property
-    def cached_guild(self) -> Guild | None:
-        """The full-cached guild associated with this application.
-
-        You should also check :attr:`guild`.
-        """
-        return self._cache.get_guild(self.guild_id)
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None, cache: CacheProtocol) -> ApplicationInfo | None:
+        if data is None:
+            return None
+        return ApplicationInfo(data, cache)
 
     @property
     def icon(self) -> Asset | None:

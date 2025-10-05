@@ -221,7 +221,7 @@ class Poll:
             return
 
         result = message.embeds[0]
-        fields: dict[str, str] = {f.name: f.value for f in result.fields}
+        fields: dict[str, str] = {f.name: f.value for f in result.fields}  # type: ignore
 
         total_votes = fields.get("total_votes")
         if total_votes is not None:
@@ -263,7 +263,8 @@ class Poll:
         multiselect = data.get("allow_multiselect", False)
         layout = try_enum(PollLayoutType, data.get("layout_type", 1))
         question = PollMedia.from_dict(data["question"], message._cache)
-        expiry = parse_time(data["expiry"])
+        expiry_dt: str = data["expiry"]
+        expiry: datetime.datetime = parse_time(expiry_dt)
         # duration = expiry - message.created_at
         # as this may be a few nanos away from the actual duration, we should round it
         duration = datetime.timedelta(hours=round((expiry - message.created_at).total_seconds() / 3600))

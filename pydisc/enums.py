@@ -61,6 +61,8 @@ __all__ = (
     "ActivityStatusDisplayType",
     "CommandPermissionOverwriteType",
     "StickerType",
+    "MessageReferenceType",
+    "MessageActivityType",
     "try_enum",
 )
 
@@ -565,6 +567,22 @@ class StickerFormatType(Enum):
     apng = 2
     lottie = 3
     gif = 4
+
+
+class MessageReferenceType(Enum):
+    """Represents the type of message reference to use when creating a message."""
+
+    default = 0
+    forward = 1
+
+
+class MessageActivityType(Enum):
+    """The activity type of a message."""
+
+    join = 1
+    spectate = 2
+    listen = 3
+    join_request = 4
 
 
 def try_enum(cls: type[E], value: Any) -> E:

@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 import aiohttp
 from pydisc.utils import Protocol
@@ -40,6 +40,10 @@ if TYPE_CHECKING:
     from pydisc.soundboard import SoundboardSound
     from pydisc.components import Component
     from pydisc.http import RESTHandler
+
+__all__ = (
+    "CacheProtocol",
+)
 
 
 # TODO: maybe allow for this to be async? idk
@@ -64,8 +68,8 @@ class CacheProtocol(Protocol):
         ``None`` if it was not present.
     """
 
-    def __init__(self, client: Client) -> None:
-        self.client: Client = client
+    def __init__(self, client: Client[Self]) -> None:
+        self.client: Client[Self] = client
         self.http: RESTHandler = client.http
         self.session: aiohttp.ClientSession = self.http.session
 
@@ -106,11 +110,18 @@ class CacheProtocol(Protocol):
         raise NotImplementedError
 
     def _create_user(self, data: dict[str, Any]) -> User:
-        from discord.user import User
+        from pydisc.user import User
 
         obj = User(data, self)
         self.store_user(obj)
         return obj
+
+    def _create_message(self, data: dict[str, Any]) -> Message:
+        from pydisc.message import Message
+
+        ret = Message(data, self)
+        self.store_message(ret)
+        return ret
 
     def get_command(self, name: str | None, /) -> Command | Group | ContextMenu | None:
         """Gets a command from the cache."""

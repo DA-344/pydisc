@@ -26,8 +26,9 @@ from __future__ import annotations
 from typing import Protocol
 import zlib
 
+
 try:
-    import zstandard
+    import zstandard  # pyright: ignore[reportMissingImports]
 except ImportError:
     _HAS_ZSTD = False
 else:
@@ -54,11 +55,11 @@ if _HAS_ZSTD:
         COMPRESSION_TYPE: str = "zstd-stream"
 
         def __init__(self) -> None:
-            decompressor = zstandard.ZstdDecompressor()
-            self.context = decompressor.decompressobj()
+            decompressor = zstandard.ZstdDecompressor()  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable, reportUnknownVariableType]
+            self.context = decompressor.decompressobj()  # pyright: ignore[reportUnknownMemberType]
 
         def decompress(self, data: bytes, /) -> str | None:
-            return self.context.decompress(data).decode("utf-8")
+            return self.context.decompress(data).decode("utf-8")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
     ActiveDecompressor = _ZstdDecompressionContext
 else:

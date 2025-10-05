@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Coroutine, Sequence
 import inspect
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from pydisc.enums import CommandType
 
@@ -51,13 +51,13 @@ if TYPE_CHECKING:
     )
 
 
-class Command:
+class Command(Generic[P, T]):
     """Represents a local-side command."""
 
     def __init__(
         self,
         *,
-        callback: CommandCallback,
+        callback: CommandCallback[P, T],
         cog: Cog | None = None,
         name: str | None = None,
         description: str | None = None,
@@ -70,7 +70,7 @@ class Command:
         if isinstance(callback, (staticmethod, classmethod)):
             raise TypeError("command callbacks can not be static- or class- methods")
 
-        self.callback: CommandCallback = callback
+        self.callback: CommandCallback[P, T] = callback
         """The command's callback. You should consider using :meth:`invoke` instead."""
         self.name: str = name or callback.__name__
         """The command's name."""
@@ -123,13 +123,13 @@ class Command:
         return options
 
 
-class ContextMenu(Command):
+class ContextMenu(Command[P, T]):
     """Represents a local-side context menu command."""
 
     def __init__(
         self,
         *,
-        callback: CommandCallback,
+        callback: CommandCallback[P, T],
         cog: Cog | None = None,
         name: str | None = None,
         description: str | None = None,

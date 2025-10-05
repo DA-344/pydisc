@@ -149,6 +149,10 @@ class Component:
         """Whether this component can be interacted with."""
         return False
 
+    def is_v2(self) -> bool:
+        """Whether this component is part of the Components V2"""
+        return False
+
 
 class UnknownComponent(Component):
     """Represents an unknown component type.

@@ -45,6 +45,8 @@ if TYPE_CHECKING:
     from .allowed_mentions import AllowedMentions
     from .components import Component
     from .poll import Poll
+    from .message import PartialMessage, MessageReference
+    from .guild import Guild
 
 __all__ = (
     "Snowflake",
@@ -69,6 +71,8 @@ class Snowflake(Protocol):
 class Channel(Snowflake):
     type: ChannelType
     """The type of this channel."""
+    guild: Guild | None
+    """The guild this channel is bound to"""
 
 
 @checkable_protocol
@@ -200,16 +204,26 @@ class Messageable(Protocol):
         allowed_mentions: MissingOr[AllowedMentions] = MISSING,
         reference: MissingOr[PartialMessage | MessageReference] = MISSING,
         components: MissingOr[Sequence[Component]] = MISSING,
-        flags: MissingOr[MessageFlags] = MISSING,
+        suppress_embeds: MissingOr[bool] = MISSING,
         enforce_nonce: MissingOr[bool] = MISSING,
         poll: MissingOr[Poll] = MISSING,
+        silent: MissingOr[bool] = MISSING,
     ) -> Message:
-        if reference is not MISSING and not reference.is_reference():
+        if reference is not MISSING:
             reference = reference.to_reference()
 
         channel = await self._get_channel()
         client = self._cache.client
-        http = client._http
+        http = client.http
+
+        flags = MessageFlags(0)
+
+        if suppress_embeds:
+            flags |= MessageFlags.suppress_embeds
+        if silent:
+            flags |= MessageFlags.suppress_notifications
+        if any(c.is_v2() for c in (components or [])):
+            flags |= MessageFlags.components_v2
 
         with handle_message_parameters(
             content=content,
@@ -227,3 +241,5 @@ class Messageable(Protocol):
             cache=self._cache,
         ) as params:
             data = await http.send_message(channel.id, params=params)
+
+        return self._cache._create_message(data)

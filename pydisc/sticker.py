@@ -69,37 +69,72 @@ class StickerPack(Hashable):
         )
 
 
-class Sticker(Hashable):
-    """Represents a sticker object that can be attached to a message."""
+class StickerItem(Hashable):
+    """Represents a sticker item received in a message."""
 
     def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
         self.id: int = int(data["id"])
         """The ID of the sticker."""
+        self.name: str = data["name"]
+        """The name of this sticker."""
+        self.format: StickerFormatType = try_enum(StickerFormatType, data["format_type"])
+        """The sticker's image format."""
+        self._cache: CacheProtocol = cache
+
+    @property
+    def cached(self) -> Sticker | None:
+        """Returns the cached version of this sticker."""
+        return self._cache.get_sticker(self.id)
+
+    async def fetch(self) -> Sticker:
+        """Fetches this sticker item.
+
+        You should not call this if :meth:`is_item` is ``False``.
+        """
+
+        client = self._cache.client
+        http = client.http
+        data = await http.get_sticker(self.id)
+        sticker = Sticker(data, self._cache)
+        self._cache.store_sticker(sticker)
+        return sticker
+
+
+class Sticker(StickerItem):
+    """Represents a sticker object that can be attached to a message."""
+
+    def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
+        super().__init__(data, cache)
         self.pack_id: int | None = _get_snowflake("pack_id", data)
         """The ID of the pack this sticker belongs to. Only applicable if :meth:`is_standard`
         is ``True``.
         """
-        self.name: str = data["name"]
-        """The name of this ticker."""
         self.description: str | None = data.get("description")
         """The description of this stacked."""
         self.tags: list[str] = [t.strip() for t in data.get("tags", "").split(",")]
         """A list of tags for autocomplete/suggestions of this sticker."""
         self.type: StickerType = try_enum(StickerType, data["type"])
         """This sticker's type."""
-        self.format: StickerFormatType = try_enum(StickerFormatType, data["format_type"])
-        """The sticker's image format."""
         self.available: bool = data.get("available", False)
         """Whether this sticker can be used. May be ``False`` if the parent guild has lost Server Boosts."""
         self.guild_id: int | None = _get_snowflake("guild_id", data)
         """The guild ID this sticker is from."""
-        self.user: User | None = User.from_dict(data.get("user"), cache)
+
+        user: dict[str, Any] | None = data.get("user")
+        self.user: User | None = cache.get_user((user or {}).get("id"))
         """The user that created this sticker."""
+        if self.user is None:
+            self.user = User.from_dict(user, cache)
+            if self.user:
+                cache.store_user(self.user)
+        else:
+            if user:
+                self.user.__init__(user, cache)
+
         self.sort_value: int | None = data.get("sort_value")
         """The stickers sort order within its packet. Only applicable if :meth:`is_standard`
         is ``True``.
         """
-        self._cache: CacheProtocol = cache
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None, cache: CacheProtocol) -> Sticker | None:
@@ -121,13 +156,6 @@ class Sticker(Hashable):
     def guild(self) -> Guild | None:
         """The guild this sticker is from, if applicable."""
         return self._cache.get_guild(self.guild_id)
-
-    @property
-    def cached_user(self) -> User | None:
-        """Returns the cached version of :attr:`user`."""
-        if self.user is None:
-            return None
-        return self._cache.get_user(self.user.id)
 
     async def fetch_pack(self) -> StickerPack:
         """Fetches this sticker's pack.

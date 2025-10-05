@@ -226,6 +226,7 @@ class DiscordWebSocketPoller:
         self.close_code: int | None = None
         self.rate_limiter: GatewayRatelimiter = GatewayRatelimiter()
         self.rest_handler: RESTHandler = rest
+        self.started: asyncio.Event = asyncio.Event()
 
         from pydisc.http import API_VERSION
 
@@ -234,12 +235,33 @@ class DiscordWebSocketPoller:
         else:
             self.gateway_url = self.gateway_url.with_query(v=API_VERSION, encoding=encoding, compress=ActiveDecompressor.COMPRESSION_TYPE)
 
+    def has_started(self) -> bool:
+        return self.started.is_set()
+
+    def update(
+        self,
+        *,
+        sequence: int | None = None,
+        gateway: yarl.URL | None = None,
+        session: str | None = None,
+        initial: bool | None = None,
+    ) -> Self:
+        if sequence is not None:
+            self.sequence = sequence
+        if gateway is not None:
+            self.gateway_url = gateway
+        if session is not None:
+            self.session_id = session
+        if initial is not None:
+            self.initial_identify = initial
+        return self
+
     @property
     def open(self) -> bool:
         return not self.ws.closed
 
     @property
-    def client(self) -> Client:
+    def client(self) -> Client[Any]:
         return self.event_router.client
 
     @property
@@ -268,8 +290,10 @@ class DiscordWebSocketPoller:
 
         if not resume:
             await self.identify()
+            self.started.set()
             return self
         await self.resume()
+        self.started.set()
         return self
 
     async def send_as_json(self, data: Any) -> None:
@@ -381,6 +405,7 @@ class DiscordWebSocketPoller:
             self.keep_alive = None
         self.close_code = code
         await self.ws.close(code=code)
+        self.started.clear()
 
     def can_handle_close_code(self) -> bool:
         code = self.close_code or self.ws.close_code
@@ -439,7 +464,7 @@ class DiscordWebSocketPoller:
                 self.gateway_url = self.DEFAULT_GATEWAY_URL
                 _log.info("Gateway session has been invalidated, reconnecting...")
                 await self.close(code=1000)
-                raise GatewayReconnectNeeded
+                raise GatewayReconnectNeeded(resume=False)
 
             _log.warning("Not handling unknown OP code %s with data %s", op, data)
 

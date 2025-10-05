@@ -53,6 +53,7 @@ def _flatten_error_dict(d: dict[str, Any], key: str = "") -> dict[str, str]:
         new_key = f"{key}.{k}" if key else k
 
         if isinstance(v, dict):
+            v: dict[Any, Any]
             try:
                 _errors: list[dict[str, Any]] = v["_errors"]
             except KeyError:
@@ -132,9 +133,35 @@ class GatewayConnectionClosed(PydiscException):
 class GatewayReconnectNeeded(PydiscException):
     """Exception raised when a gateway asks for a reconnection."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, resume: bool = True) -> None:
+        self.resume: bool = resume
+        self.op: str = "IDENTIFY" if resume is False else "RESUME"
         super().__init__("Gateway sent a RECONNECT opcode, you should reconnect")
 
 
 class WebSocketClosure(PydiscException):
     """Exception raised when a websocket connection closes."""
+
+
+class PriviligedIntentsRequired(PydiscException):
+    """Excpetion raised when the gateway requests intents the app has not applied for.
+
+    For non-verified bots, this can be solved by ticking the checkbox in the intents
+    you need at https://discord.com/developers/applications/
+
+    For verified bots, you should apply to enable the intent. Until then, you can not use it.
+
+    The currently available priviliged intents are:
+
+    - :attr:`Intents.members`
+    - :attr:`Intents.message_content`
+    - :attr:`Intents.presences`
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            "Your application is requesting priviliged intents that have not been explicitly enabled in the "
+            "developer portal. You should go to https://discord.com/developers/applications/ "
+            "and tick all those intents you need and have enabled in your code. If this can not be done, you should "
+            "remove the conflicting Intent from the intents flags."
+        )

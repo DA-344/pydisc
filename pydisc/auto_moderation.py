@@ -283,8 +283,8 @@ class PartialAutoModRule:
         trigger_metadata: AutoModTriggerMetadata | None,
         actions: list[AutoModAction],
         enabled: bool = False,
-        exempt_roles: MissingOr[list[abc.Snowflake]] = MISSING,
-        exempt_channels: MissingOr[list[abc.Snowflake]] = MISSING,
+        exempt_role_ids: MissingOr[list[abc.Snowflake]] = MISSING,
+        exempt_channel_ids: MissingOr[list[abc.Snowflake]] = MISSING,
     ) -> None:
         self.name: str = name
         """The name of the auto mod rule."""
@@ -298,9 +298,9 @@ class PartialAutoModRule:
         """The list of actions done when the auto mod is fully triggered."""
         self.enabled: bool = enabled
         """Whether this auto mod rule is enabled."""
-        self.exempt_roles: set[int] = {r.id for r in exempt_roles or []}
+        self.exempt_role_ids: set[int] = {r.id for r in exempt_role_ids or []}
         """The set of exempt role IDs of this auto mod rule."""
-        self.exempt_channels: set[int] = {c.id for c in exempt_channels or []}
+        self.exempt_channel_ids: set[int] = {c.id for c in exempt_channel_ids or []}
         """The set of exempt channel IDs of this auto mod rule."""
 
     def is_exempt(self, object: abc.Snowflake, /) -> bool:
@@ -325,10 +325,10 @@ class PartialAutoModRule:
 
         if self.trigger_metadata is not None:
             pd["trigger_metadata"] = self.trigger_metadata.to_dict(self.trigger_type)
-        if self.exempt_roles:
-            pd["exempt_roles"] = list(self.exempt_roles)
-        if self.exempt_channels:
-            pd["exempt_channels"] = list(self.exempt_channels)
+        if self.exempt_role_ids:
+            pd["exempt_roles"] = list(self.exempt_role_ids)
+        if self.exempt_channel_ids:
+            pd["exempt_channels"] = list(self.exempt_channel_ids)
         return pd
 
 
@@ -344,8 +344,8 @@ class AutoModRule(PartialAutoModRule, Hashable):
             trigger_metadata=AutoModTriggerMetadata.from_dict(data.get("trigger_metadata")),
             actions=[AutoModAction.from_dict(a) for a in data["actions"]],
             enabled=data["enabled"],
-            exempt_roles=list(map(lambda i: Object(id=int(i), type=Channel), data["exempt_roles"])),
-            exempt_channels=list(map(lambda i: Object(id=int(i), type=Channel), data["exempt_channels"])),
+            exempt_role_ids=list(map(lambda i: Object(id=int(i), type=Channel), data["exempt_roles"])),
+            exempt_channel_ids=list(map(lambda i: Object(id=int(i), type=Channel), data["exempt_channels"])),
         )
 
         self.guild_id: int = int(data["guild_id"])
@@ -369,17 +369,17 @@ class AutoModRule(PartialAutoModRule, Hashable):
         return self._cache.get_guild(self.guild_id)
 
     @property
-    def cached_exempt_roles(self) -> list[Role]:
+    def exempt_roles(self) -> list[Role]:
         """The cached version of the :attr:`exempt_roles`."""
         if self.guild is None:
             return []
-        roles = filter(None, {self.guild.get_role(r) for r in self.exempt_roles})
+        roles = filter(None, {self.guild.get_role(r) for r in self.exempt_role_ids})
         return list(roles)
 
     @property
-    def cached_exempt_channels(self) -> list[Channel]:
+    def exempt_channels(self) -> list[Channel]:
         """The cached version of the :attr:`exempt_channels`."""
         if self.guild is None:
             return []
-        channels = filter(None, {self.guild.get_channel(c) for c in self.exempt_channels})
+        channels = filter(None, {self.guild.get_channel(c) for c in self.exempt_channel_ids})
         return list(channels)

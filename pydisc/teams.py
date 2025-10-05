@@ -87,8 +87,14 @@ class TeamMember:
         """The user's invitation state on the team."""
         self.team_id: int = int(data["team_id"])
         """The ID of the team this member is part of."""
-        self.user: PartialUser = PartialUser(data["user"], cache)
+
+        user: dict[str, Any] = data["user"]
+        self.user: PartialUser = PartialUser(user, cache)
         """The partial user this team member represents."""
+        if cached_user := cache.get_user(self.user.id):
+            self.user = cached_user
+            self.user.__init__(user, cache)
+
         self.role: TeamMemberRole
         """The role of this member in the team."""
 
@@ -96,11 +102,6 @@ class TeamMember:
             self.role = TeamMemberRole.owner
         else:
             self.role = try_enum(TeamMemberRole, data["role"])
-
-    @property
-    def cached_user(self) -> User | None:
-        """Returns the cached version of the partial :attr:`user`."""
-        return self.user.cached
 
     @classmethod
     def from_dict_array(cls, array: list[dict[str, Any]], cache: CacheProtocol, parent: Team) -> list[TeamMember]:

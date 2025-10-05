@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, overload
 
 from .models import (
     EventModel,
+    InteractionCreate,
 )
 
 if TYPE_CHECKING:
@@ -52,10 +53,10 @@ class EventRouter:
     This may be overriden to add custom behaviour or event dispatching.
     """
 
-    def __init__(self, client: Client) -> None:
-        self.client: Client = client
+    def __init__(self, client: Client[Any]) -> None:
+        self.client: Client[Any] = client
         self.task_set: set[asyncio.Task[Any]] = set()
-        self._events: dict[str, list[Coro]] = {}
+        self._events: dict[str, list[Coro[Any]]] = {}
         self._waiters: dict[str, list[asyncio.Future[Any]]] = {}
 
     @property
@@ -66,7 +67,7 @@ class EventRouter:
     def cache(self) -> CacheProtocol:
         return self.client.cache
 
-    async def _invoke(self, coros: list[Coro], args: Any, kwargs: dict[str, Any]) -> None:
+    async def _invoke(self, coros: list[Coro[Any]], args: Any, kwargs: dict[str, Any]) -> None:
         loop = asyncio.get_running_loop()
         tasks = [loop.create_task(coro(*args, **kwargs)) for coro in coros]
         await asyncio.gather(*tasks)
@@ -178,8 +179,16 @@ class EventRouter:
         self.task_set.add(task)
         task.add_done_callback(self.task_set.discard)
 
+    async def handle_interaction(self, payload: InteractionCreate) -> None:
+        ...
+
     async def _parse_event(self, event: str, model: EventModel) -> None:
         model = await model.async_setup()
+
+        # interactions need a special handling for components, modals, slash
+        # commands and such things
+        if isinstance(model, InteractionCreate):
+            await self.handle_interaction(model)
         await self.invoke(
             event,
             async_invoke=True,

@@ -28,7 +28,7 @@ import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydisc.abc import Channel, User
-from pydisc.enums import ChannelType, PermissionOverwriteType
+from pydisc.enums import ChannelType, PermissionOverwriteType, try_enum
 from pydisc.flags import ChannelFlags, Permissions
 from pydisc.object import Object
 from pydisc.overwrites import PermissionOverwrite
@@ -40,15 +40,46 @@ if TYPE_CHECKING:
     from pydisc.guild import Guild
     from pydisc.message import Message
 
+__all__ = (
+    "PartialChannel",
+    "GuildChannel",
+)
 
-class GuildChannel(Channel):
+
+class PartialChannel(Channel):
+    """Represents a partial channel."""
+
+    def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
+        self.id: int = int(data["id"])
+        """The ID of this channel."""
+        self.guild_id: int = int(data["guild_id"])
+        """The guild ID the channel is from."""
+        self._type: ChannelType = try_enum(ChannelType, data["type"])
+        self.name: str = data["name"]
+        """The name of this channel."""
+        self._cache: CacheProtocol = cache
+
+    @property
+    def type(self) -> ChannelType:
+        """The type of this channel."""
+        return self._type
+
+    @property
+    def guild(self) -> Guild | None:
+        """The guild this channel belongs to."""
+        return self._cache.get_guild(self.guild_id)
+
+    @property
+    def cached(self) -> Channel | None:
+        """Returns the cached version of this channel."""
+        return self._cache.get_channel(self.id)
+
+
+class GuildChannel(PartialChannel):
     """A protocol that abstracts out :class:`Guild`-bound channels."""
 
     def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
-        self.guild_id: int = int(data["guild_id"])
-        """The guild ID this channel is part from."""
-        self.name: str = data["name"]
-        """The name of this channel."""
+        super().__init__(data, cache)
         self.topic: str | None = data.get("topic")
         """The topic of this channel."""
         self.nsfw: bool = data.get("nsfw", False)
@@ -67,7 +98,6 @@ class GuildChannel(Channel):
         self.position: int = data["position"]
         """The position of this channel in the guild."""
         self._overwrites: list[PermissionOverwrite] = PermissionOverwrite.from_dict_array(data.get("permission_overwrites", []), self.guild_id)
-        self._cache: CacheProtocol = cache
         self._flags: int = data.get("flags", 0)
 
     @property
@@ -76,19 +106,14 @@ class GuildChannel(Channel):
         return ChannelFlags(self._flags)
 
     @property
-    def type(self) -> ChannelType:
-        """The type of this channel."""
-        raise NotImplementedError
-
-    @property
     def overwrites(self) -> dict[Object | Role | User, PermissionOverwrite]:
         """Returns a mapping of {Snowflake: PermissionOverwrite} denoting the available
         overwrites of this channel.
         """
         ret: dict[Object | Role | User, PermissionOverwrite] = {}
 
-        get_role = self.guild.get_role if self.guild else lambda rid: Object(id=rid, type=Role)
-        get_member = self.guild.get_member if self.guild else lambda mid: Object(id=mid, type=User)
+        get_role = self.guild.get_role if self.guild else (lambda rid: Object(id=rid, type=Role))
+        get_member = self.guild.get_member if self.guild else (lambda mid: Object(id=mid, type=User))
 
         for ow in self._overwrites:
             target = None
@@ -139,11 +164,6 @@ class GuildChannel(Channel):
             me = Object(id=self._cache.client.user.id, type=User)
         permissions = self.overwrites_for(me)
         return Permissions.send_messages in permissions.allow
-
-    @property
-    def guild(self) -> Guild | None:
-        """Returns the cached version of the guild this channel is from."""
-        return self._cache.get_guild(self.guild_id)
 
     @property
     def last_message(self) -> Message | None:

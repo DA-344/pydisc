@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     from .message import MessageReference
     from .poll import Poll
     from .cache._types import CacheProtocol
-    from .sticker import Sticker
+    from .abc import Snowflake
     from .channels.forum import ForumTag
 
     Coro = Coroutine[Any, Any, "T"]
@@ -109,7 +109,7 @@ def handle_message_parameters(
     components: MissingOr[Sequence[Component] | None] = MISSING,
     allowed_mentions: MissingOr[AllowedMentions] = MISSING,
     reference: MissingOr[MessageReference] = MISSING,
-    stickers: MissingOr[Sequence[Sticker] | None] = MISSING,
+    stickers: MissingOr[Sequence[Snowflake] | None] = MISSING,
     thread_name: MissingOr[str] = MISSING,
     channel_payload: MissingOr[dict[str, Any]] = MISSING,
     applied_tags: MissingOr[Sequence[ForumTag] | None] = MISSING,
@@ -140,7 +140,7 @@ def handle_message_parameters(
         if components is None:
             payload["components"] = []
         else:
-            comps = []
+            comps: list[dict[str, Any]] = []
             for comp in components:
                 if comp.is_dispatchable():
                     cache.store_component(comp)
@@ -160,7 +160,7 @@ def handle_message_parameters(
         if stickers is None:
             payload["sticker_ids"] = []
         else:
-            payload["sticker_ids"] = stickers
+            payload["sticker_ids"] = [s.id for s in stickers]
 
     if tts is not MISSING:
         payload["tts"] = tts
@@ -204,7 +204,7 @@ def handle_message_parameters(
             payload["applied_tags"] = [at.id for at in applied_tags]
 
     if channel_payload is not MISSING:
-        payload: dict[str, Any] = {
+        payload = {
             "message": payload,
         }
         payload.update(channel_payload)
@@ -215,7 +215,7 @@ def handle_message_parameters(
         else:
             payload["poll"] = poll.to_dict()
 
-    multipart = []
+    multipart: list[dict[str, Any]] = []
     if files:
         multipart.append({"name": "payload_json", "value": utils._to_json(payload)})
         payload = None
@@ -279,6 +279,9 @@ class RESTHandler:
     ) -> None:
         self.loop: asyncio.AbstractEventLoop = loop
         self.base_url: str = base_url
+        self.proxy: str | None = proxy
+        self.proxy_auth: aiohttp.BasicAuth | None = proxy_auth
+        self.connector: aiohttp.BaseConnector | None = connector
         self.session: aiohttp.ClientSession = aiohttp.ClientSession(
             loop=loop,
             proxy=proxy,
@@ -296,6 +299,19 @@ class RESTHandler:
             aiohttp.__version__,
         )
         self.token: str | None = None
+
+    async def close(self) -> None:
+        if not self.session.closed:
+            await self.session.close()
+
+    def clear(self) -> None:
+        if self.session.closed:
+            self.session = aiohttp.ClientSession(
+                loop=self.loop,
+                proxy=self.proxy,
+                proxy_auth=self.proxy_auth,
+                connector=self.connector,
+            )
 
     @property
     def max_ratelimit_timeout(self) -> float | None:

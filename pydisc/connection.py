@@ -40,14 +40,14 @@ __all__ = (
 class ConnectionState:
     def __init__(
         self,
-        client: Client,
+        client: Client[Any],
         intents: Intents,
         *,
         activity: Activity | None = None,
         status: Status | None = None,
         **options: Any,
     ) -> None:
-        self.client: Client = client
+        self.client: Client[Any] = client
         self.intents: Intents = intents
         self.activity: Activity | None = activity
         self.status: Status | None = status
