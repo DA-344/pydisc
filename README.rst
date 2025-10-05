@@ -15,6 +15,13 @@ Key Features
 - Modern Pythonic API using ``async`` and ``await``.
 - Proper rate limit handling.
 
+To Do
+-----
+
+- [ ] Event routing system
+- [ ] Full API models
+- [ ] Application commands, components and interactions
+
 Installing
 ----------
 
