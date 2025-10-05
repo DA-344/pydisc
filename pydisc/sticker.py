@@ -121,7 +121,7 @@ class Sticker(StickerItem):
         """The guild ID this sticker is from."""
 
         user: dict[str, Any] | None = data.get("user")
-        self.user: User | None = cache.get_user((user or {}).get("id"))
+        self.user: User | None = cache.get_user(_get_snowflake("id", user or {}))
         """The user that created this sticker."""
         if self.user is None:
             self.user = User.from_dict(user, cache)

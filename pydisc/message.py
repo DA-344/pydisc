@@ -26,6 +26,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 import datetime
 from typing import TYPE_CHECKING, Any, Self
+from typing_extensions import deprecated
 
 from .abc import Channel, Snowflake
 from .user import User
@@ -37,7 +38,7 @@ from .embed import Embed
 from .reaction import Reaction
 from .application_info import ApplicationInfo
 from .components import _pd_to_component, Component
-from .sticker import StickerItem
+from .sticker import Sticker, StickerItem
 from .poll import Poll
 from .mixins import Hashable
 from .utils import _get_snowflake, parse_time
@@ -48,6 +49,7 @@ from .flags import MessageFlags
 from .http import handle_message_parameters
 from .allowed_mentions import AllowedMentions
 from .enums import InteractionType, MessageActivityType, MessageReferenceType, MessageType, try_enum
+from .member import Member, PartialMember
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol
@@ -263,6 +265,25 @@ class MessageReference(PartialMessage):
 class Message(PartialMessage):
     """Represents a message object."""
 
+    if TYPE_CHECKING:
+        @deprecated("Message.interaction is deprecated in favor of Message.interaction_metadata")
+        @property
+        def interaction(self) -> MessageInteraction | None:
+            """The interaction data bound to this message.
+
+            This attribute is deprecated, consider using :attr:`interaction_metadata`.
+            """
+            return NotImplemented
+
+        @deprecated("Message.stickers is deprecated in favor of Message.sticker_items")
+        @property
+        def stickers(self) -> list[Sticker]:
+            """The stickers of this message.
+
+            This attribute is deprecated, consider using :attr:`sticker_items` instead.
+            """
+            return NotImplemented
+
     def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
         super().__init__(data, cache)
 
@@ -313,7 +334,7 @@ class Message(PartialMessage):
         self._flags: int = data.get("flags", 0)
         self.message_reference: MessageReference | None = MessageReference.from_dict(data.get("message_reference"), cache)
         """The referenced message. This may be applicable for crossposts, channel follow adds, pins, or replies."""
-        self.message_snapshots: list[MessageSnapshot] = MessageSnapshot.from_dict_array(data.get("message_snapshots"), cache)
+        self.message_snapshots: list[MessageSnapshot] = MessageSnapshot.from_dict_array(data.get("message_snapshots"), cache, self.message_reference)
         """The snapshots of this message. This is only applicable when :attr:`message_reference` is not :data:`None` and
         :attr:`Message.message_reference.type <MessageReference.type>` is :attr:`MessageReferenceType.forward`.
         """
@@ -328,13 +349,147 @@ class Message(PartialMessage):
         )
         """The interaction metadata bound to this message."""
 
+        thread: dict[str, Any] | None = data.get("thread")
+        self.thread: Thread | None = cache.get_thread(_get_snowflake("id", thread or {}))
+        """The thread this message was sent to."""
+
+        if self.thread is None:
+            self.thread = Thread.from_dict(thread, cache)
+            cache.store_thread(self.thread)
+        else:
+            if thread:
+                self.thread.__init__(thread, cache)
+
+        self.components: list[Component] = [_pd_to_component(c, cache) for c in data.get("components", [])]
+        """The components of this message.
+
+        This does not include subclasses nor callbacks.
+        """
+        self.sticker_items: list[StickerItem] = [StickerItem(s, cache) for s in data.get("sticker_items", [])]
+        """The sticker items of this message."""
+        self.position: int | None = data.get("position")
+        """The estimated position of this message in its :attr:`thread`."""
+        self.role_subscription_data: RoleSubscriptionData | None = RoleSubscriptionData.from_dict(data.get("role_subscription_data"))
+        """The role subscription data of this message. This is only applicable when :attr:`type` is
+        :attr:`MessageType.role_subscription_purchase`.
+        """
+        self._resolved: ResolvedData = ResolvedData()
+
+        # i don't really like this solution but if we don't do this then
+        # the deprecation notices wouldn't make effect and no warnings would
+        # be emitted by type checkers
+        # should still document it here just to make sure docs are rendered anyways
+        if TYPE_CHECKING:
+            pass
+        else:
+            self.interaction: MessageInteraction | None = MessageInteraction.from_dict(data.get("interaction"), cache)
+            """The interaction data bound to this message.
+
+            This attribute is deprecated, consider using :attr:`interaction_metadata`.
+            """
+            self.stickers: list[Sticker] = [Sticker(s, cache) for s in data.get("stickers", [])]
+            """The stickers of this message.
+
+            This attribute is deprecated, consider using :attr:`sticker_items` instead.
+            """
+
     @property
     def flags(self) -> MessageFlags:
         """The flags of this message."""
         return MessageFlags(self._flags)
 
 
-class MessageSnapshot:
+# I'd really like to follow the API structure here, but only if
+# PartialMessage implemented the fields message snaphosts provide
+# in a consistent way with the other partial messages objects.
+class MessageSnapshot(PartialMessage):
+    """Represents the snapshot of a message."""
+
+    if TYPE_CHECKING:
+        @deprecated("MessageSnapshot.stickers is deprecated in favor of MessageSnapshot.sticker_items")
+        @property
+        def stickers(self) -> list[Sticker]:
+            """The stickers of this message.
+
+            This attribute is deprecated, consider using :attr:`sticker_items` instead.
+            """
+            return NotImplemented
+
+    def __init__(self, data: dict[str, Any], cache: CacheProtocol, reference: MessageReference) -> None:
+        msg = data["message"]
+
+        super().__init__(
+            {
+                "id": reference.id,
+                "channel_id": reference.channel_id,
+                "guild_id": reference.guild_id,
+            },
+            cache,
+        )
+
+        self._ref: MessageReference = reference
+        self._cache: CacheProtocol = cache
+        self.type: MessageType = try_enum(MessageType, msg["type"])
+        """The type of this message."""
+        self.content: str = data["content"]
+        """The contents of this message."""
+        self.embeds: list[Embed] = [Embed.from_dict(e) for e in data.get("embeds", [])]
+        """The embeds of this message."""
+        self.attachments: list[Attachment] = [Attachment(a, cache) for a in data.get("attachments", [])]
+        """The attachments of this message."""
+        self.created_at: datetime.datetime = parse_time(data["timestamp"])
+        """When this message was created."""
+        self.edited_at: datetime.datetime | None = parse_time(data.get("edited_timestamp"))
+        """When this message has been edited, if applicable."""
+        self._flags: int = data.get("flags", 0)
+        self._user_mentions: dict[int, User] = {
+            int(d["id"]): User(d, cache)
+            for d in data.get("mentions", [])
+        }
+        self._channel_mentions: dict[int, Channel] = {
+            int(d["id"]): channel_factory(d, cache)
+            for d in data.get("mention_channels", [])
+        }
+        self._role_mentions: dict[int, Role] = {
+            int(d["id"]): Role(d, cache)
+            for d in data.get("mention_roles", [])
+        }
+        self.sticker_items: list[StickerItem] = [StickerItem(d, cache) for d in data.get("sticker_items", [])]
+        """The sticker items of this message."""
+        self.components: list[Component] = [_pd_to_component(c, cache) for c in data.get("components", [])]
+        """The components of this message.
+
+        This does not include subclasses nor callbacks.
+        """
+
+        if TYPE_CHECKING:
+            pass
+        else:
+            self.stickers: list[Sticker] = Sticker.from_dict_array(data.get("stickers"), cache)
+            """The stickers of this message.
+
+            This attribute is deprecated, consider using :attr:`sticker_items` instead.
+            """
+
+    @property
+    def guild(self) -> Guild | None:
+        """The guild this message was sent to."""
+        if self.channel:
+            return self.channel.guild
+        return None
+
+    @property
+    def guild_id(self) -> int | None:
+        """The guild ID this message was sent to."""
+        if self.guild:
+            return self.guild.id
+        return None
+
+    @classmethod
+    def from_dict_array(cls, data: list[dict[str, Any]] | None, cache: CacheProtocol, reference: MessageReference) -> list[MessageSnapshot]:
+        if not data:
+            return []
+        return [MessageSnapshot(d, cache, reference) for d in data]
 
 
 class MessageInteractionMetadata(Hashable):
@@ -367,7 +522,7 @@ class MessageInteractionMetadata(Hashable):
         """
 
         target_user: dict[str, Any] | None = data.get("target_user")
-        self.target_user: User | None = cache.get_user((target_user or {}).get("id"))
+        self.target_user: User | None = cache.get_user(_get_snowflake("id", target_user or {}))
         """The user the command was executed on. In case :attr:`type` is :attr:`InteractionType.command`
         and the command is a user context menu.
         """
@@ -422,6 +577,43 @@ class MessageInteractionMetadata(Hashable):
         if data is None:
             return None
         return MessageInteractionMetadata(data, cache, message)
+
+
+@deprecated(
+    "MessageInteraction is deprecated in favor of MessageInteractionMetadata and will be removed "
+    "in the next Discord API version.",
+)
+class MessageInteraction(Hashable):
+    """Represents the interaction data for a message.
+
+    This is deprecated in favor of :attr:`Message.interaction_metadata`.
+    """
+
+    def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
+        self.id: int = int(data["id"])
+        """The ID of the interaction."""
+        self.type: InteractionType = try_enum(InteractionType, data["type"])
+        """The type of interaction."""
+        self.name: str = data["name"]
+        """The name of the invoked command, including subcommands and subcommand groups."""
+
+        user: dict[str, Any] = data["user"]
+        self.user: User = User(user, cache)
+        """The user that invoked the interaction."""
+
+        if cached_user := cache.get_user(self.user.id):
+            self.user = cached_user
+            self.user.__init__(user, cache)
+
+        member: dict[str, Any] | None = data.get("member")
+        self.member: PartialMember | None = cache.get_member(_get_snowflake("id", member or {}))
+        """The member data that invoked the interaction, if in a guild context."""
+
+        if self.member is None:
+            self.member = PartialMember.from_dict(member, cache)
+        else:
+            if member:
+                self.member.__init__(member, cache)
 
 
 class MessageActivity:

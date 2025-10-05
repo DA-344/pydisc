@@ -64,7 +64,7 @@ class ApplicationInfo(Hashable):
         """Whether the app's bot will join after fully completing the OAuth2 grant flow."""
 
         bot_data: dict[str, Any] | None = data.get("bot")
-        self.bot: PartialUser | None = cache.get_user((bot_data or {}).get("id"))
+        self.bot: PartialUser | None = cache.get_user(_get_snowflake("id", bot_data or {}))
         """The bot user associated with this application."""
 
         if self.bot is None:

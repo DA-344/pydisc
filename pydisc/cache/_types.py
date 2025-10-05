@@ -40,6 +40,8 @@ if TYPE_CHECKING:
     from pydisc.soundboard import SoundboardSound
     from pydisc.components import Component
     from pydisc.http import RESTHandler
+    from pydisc.member import Member
+    from pydisc.channels import Thread
 
 __all__ = (
     "CacheProtocol",
@@ -188,4 +190,28 @@ class CacheProtocol(Protocol):
 
     def remove_component(self, custom_id: str, /) -> Component | None:
         """Removes a component from the cache."""
+        raise NotImplementedError
+
+    def get_member(self, id: int | None, /) -> Member | None:
+        """Gets a member from the cache."""
+        raise NotImplementedError
+
+    def store_member(self, guild_id: int, member: Member, /) -> None:
+        """Stores a member in the cache."""
+        raise NotImplementedError
+
+    def remove_member(self, guild_id: int, id: int, /) -> Member | None:
+        """Removes a member from the cache."""
+        raise NotImplementedError
+
+    def get_thread(self, id: int | None, /) -> Thread | None:
+        """Gets a thread from the cache."""
+        raise NotImplementedError
+
+    def store_thread(self, thread: Thread, /) -> None:
+        """Stores a thread in the cache."""
+        raise NotImplementedError
+
+    def remove_thread(self, id: int, /) -> Thread | None:
+        """Removes a thread from the cache."""
         raise NotImplementedError
