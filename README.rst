@@ -30,10 +30,10 @@ Installing
 .. code:: sh
 
     # Linux/macOS
-    python3 -m pip install -U discord.py
+    python3 -m pip install git+https://github.com/DA-344/pydisc
 
     # Windows
-    py -3 -m pip install -U discord.py
+    py -3 -m pip install git+https://github.com/DA-344/pydisc
 
 Quick Example
 --------------
