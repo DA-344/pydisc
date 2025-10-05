@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from collections.abc import Generator
@@ -58,8 +59,7 @@ def _pd_to_component(payload: dict[str, Any], cache: CacheProtocol) -> Component
 
 
 class Component:
-    """Represents a Discord component.
-    """
+    """Represents a Discord component."""
 
     def __init__(self) -> None:
         self._id: int | None = None
@@ -255,7 +255,9 @@ class ActionRow(Component):
             raise TypeError(f"expected a Component instance, got {component.__class__.__name__!r}")
 
         if self.current_weight + component.weight > 5:
-            raise ValueError("maximum children weight has been exceeded, this can take only up to 5 buttons OR 1 select (of any type)")
+            raise ValueError(
+                "maximum children weight has been exceeded, this can take only up to 5 buttons OR 1 select (of any type)"
+            )
 
         self._components.append(component)
         return self
@@ -306,8 +308,7 @@ class _CustomIdComponent(Component):
 
 
 class Button(_CustomIdComponent):
-    """Represents a Button.
-    """
+    """Represents a Button."""
 
     if TYPE_CHECKING:
         _custom_id: str | None
@@ -434,7 +435,8 @@ class Button(_CustomIdComponent):
     @classmethod
     def from_dict(cls, data: dict[str, Any], cache: CacheProtocol) -> Button:
         style: ButtonStyle = try_enum(
-            ButtonStyle, data["style"],
+            ButtonStyle,
+            data["style"],
         )
 
         emoji: Emoji | None = None

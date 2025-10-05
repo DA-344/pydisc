@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -97,7 +98,9 @@ class GuildChannel(PartialChannel):
         """The timestamp of when the last message was pinned."""
         self.position: int = data["position"]
         """The position of this channel in the guild."""
-        self._overwrites: list[PermissionOverwrite] = PermissionOverwrite.from_dict_array(data.get("permission_overwrites", []), self.guild_id)
+        self._overwrites: list[PermissionOverwrite] = PermissionOverwrite.from_dict_array(
+            data.get("permission_overwrites", []), self.guild_id
+        )
         self._flags: int = data.get("flags", 0)
 
     @property
@@ -131,8 +134,7 @@ class GuildChannel(PartialChannel):
         return ret
 
     def overwrites_for(self, obj: Role | User | Object) -> PermissionOverwrite:
-        """Returns this channel-specific overwrites for the provided object.
-        """
+        """Returns this channel-specific overwrites for the provided object."""
 
         pred: Callable[[PermissionOverwrite], bool]
 

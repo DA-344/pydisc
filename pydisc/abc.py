@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -184,8 +185,7 @@ class User(Mentionable):
 
 
 class Messageable(Protocol):
-    """An abstract method for sending messages to a destination.
-    """
+    """An abstract method for sending messages to a destination."""
 
     _cache: CacheProtocol
 

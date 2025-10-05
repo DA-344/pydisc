@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -398,7 +399,9 @@ class RESTHandler:
                         if rl_hash is not None:
                             if bucket_hash != rl_hash:
                                 if bucket_hash is not None:
-                                    _log.debug("The route %s has changed bucket hashes: %s -> %s", route_key, bucket_hash, rl_hash)
+                                    _log.debug(
+                                        "The route %s has changed bucket hashes: %s -> %s", route_key, bucket_hash, rl_hash
+                                    )
 
                                     self._bucket_hashes[route_key] = rl_hash
                                     self._buckets[f"{rl_hash}:{route.major_params}"] = ratelimit
@@ -428,7 +431,9 @@ class RESTHandler:
                             if ratelimit._remaining > 0:
                                 _log.debug(
                                     "%s %s received a 429 but had %d remaining requests. THis is a sub-ratelimit.",
-                                    route.method, route.path, ratelimit._remaining,
+                                    route.method,
+                                    route.path,
+                                    ratelimit._remaining,
                                 )
 
                             retry_after: float = data["retry_after"]
@@ -447,8 +452,11 @@ class RESTHandler:
                                 route.path,
                                 retry_after,
                             )
-                            _log.debug("Rate limit exceeded, with bucket hash %s and %r major params.", bucket_hash, route.major_params)
-
+                            _log.debug(
+                                "Rate limit exceeded, with bucket hash %s and %r major params.",
+                                bucket_hash,
+                                route.major_params,
+                            )
 
                             is_global = data.get("global", False)
                             if is_global:

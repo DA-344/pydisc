@@ -21,9 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
-from typing import  Generic, Literal, TypeVar, Union
+from typing import Generic, Literal, TypeVar, Union
 
 from enum import Enum, auto
 
@@ -45,6 +46,7 @@ class Undefined(Enum):
 
     def __repr__(self) -> str:
         return "..."
+
 
 MISSING: Literal[Undefined.MISSING] = Undefined.MISSING
 MissingOr = Union[Literal[Undefined.MISSING], T]

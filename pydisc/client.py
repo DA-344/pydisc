@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -57,6 +58,7 @@ class _Loop:
             "context then you should create one manually and use it, or use the provided async_setup "
             "overrideable function in Client to do your async operations.",
         )
+
 
 _loop: Any = _Loop()
 

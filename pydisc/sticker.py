@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -158,8 +159,7 @@ class Sticker(StickerItem):
         return self._cache.get_guild(self.guild_id)
 
     async def fetch_pack(self) -> StickerPack:
-        """Fetches this sticker's pack.
-        """
+        """Fetches this sticker's pack."""
 
         if self.pack_id is None:
             raise RuntimeError("there is no pack for this sticker")

@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -48,8 +49,7 @@ __all__ = (
 
 
 class AutoModTriggerMetadata:
-    """Represents the trigger metadata for an auto mod rule.
-    """
+    """Represents the trigger metadata for an auto mod rule."""
 
     @overload
     def __init__(
@@ -108,8 +108,7 @@ class AutoModTriggerMetadata:
             raise ValueError(
                 "You can only pass a defined combination of keywords to AutoModTriggerMetadata:",
                 "keywords or regex_patterns, and allow;",
-                "keyword_presets, and allow;"
-                "mention_limit or mention_raid_protection."
+                "keyword_presets, and allow;" "mention_limit or mention_raid_protection.",
             )
 
         self.keywords: list[str] = keywords or []

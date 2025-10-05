@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -36,9 +37,7 @@ if TYPE_CHECKING:
 
 CUSTOM_EMOJI_PATTERN = re.compile(r"<?(?:(?P<animated>a)?:)?(?P<name>[A-Za-z0-9\_]+):(?P<id>[0-9]{13,20})>?")
 
-__all__ = (
-    "Emoji",
-)
+__all__ = ("Emoji",)
 
 
 class Emoji(Hashable):

@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from enum import Flag
@@ -352,23 +353,23 @@ class Intents(Flag):
     def all(cls) -> Intents:
         """Returns an ``Intents`` instace with all flags set."""
         return (
-            cls.guilds |
-            cls.guild_members |
-            cls.guild_moderation |
-            cls.guild_expressions |
-            cls.guild_integrations |
-            cls.guild_webhooks |
-            cls.guild_invites |
-            cls.guild_voice_states |
-            cls.guild_presences |
-            cls.messages |
-            cls.message_reactions |
-            cls.message_typing |
-            cls.message_content |
-            cls.guild_scheduled_events |
-            cls.auto_moderation |
-            cls.message_polls
-        ) 
+            cls.guilds
+            | cls.guild_members
+            | cls.guild_moderation
+            | cls.guild_expressions
+            | cls.guild_integrations
+            | cls.guild_webhooks
+            | cls.guild_invites
+            | cls.guild_voice_states
+            | cls.guild_presences
+            | cls.messages
+            | cls.message_reactions
+            | cls.message_typing
+            | cls.message_content
+            | cls.guild_scheduled_events
+            | cls.auto_moderation
+            | cls.message_polls
+        )
 
     @classmethod
     def default(cls) -> Intents:
@@ -441,89 +442,85 @@ class Permissions(Flag):
     def all(cls) -> Permissions:
         """Returns a Permissions object with all flags set."""
         return (
-            Permissions.general() |
-            Permissions.membership() |
-            Permissions.text_channels() |
-            Permissions.voice_channels() |
-            Permissions.apps() |
-            Permissions.stage_channels() |
-            Permissions.events() |
-            Permissions.advanced()
+            Permissions.general()
+            | Permissions.membership()
+            | Permissions.text_channels()
+            | Permissions.voice_channels()
+            | Permissions.apps()
+            | Permissions.stage_channels()
+            | Permissions.events()
+            | Permissions.advanced()
         )
 
     @classmethod
     def general(cls) -> Permissions:
         """Returns a Permissions object with all the UI "General" section permissions enabled."""
         return (
-            Permissions.view_channels |
-            Permissions.manage_channels |
-            Permissions.manage_roles |
-            Permissions.create_guild_expressions |
-            Permissions.manage_guild_expressions |
-            Permissions.view_audit_log |
-            Permissions.view_guild_insights |
-            Permissions.manage_webhooks |
-            Permissions.manage_guild
+            Permissions.view_channels
+            | Permissions.manage_channels
+            | Permissions.manage_roles
+            | Permissions.create_guild_expressions
+            | Permissions.manage_guild_expressions
+            | Permissions.view_audit_log
+            | Permissions.view_guild_insights
+            | Permissions.manage_webhooks
+            | Permissions.manage_guild
         )
 
     @classmethod
     def membership(cls) -> Permissions:
         """Returns a Permissions obejct with all the UI "Membership" section permissions enabled."""
         return (
-            Permissions.create_instant_invite |
-            Permissions.change_nickname |
-            Permissions.manage_nicknames |
-            Permissions.ban_members |
-            Permissions.moderate_members
+            Permissions.create_instant_invite
+            | Permissions.change_nickname
+            | Permissions.manage_nicknames
+            | Permissions.ban_members
+            | Permissions.moderate_members
         )
 
     @classmethod
     def text_channels(cls) -> Permissions:
         """Returns a Permissions object with all the UI "Text channels" section permissions enabled."""
         return (
-            Permissions.send_messages |
-            Permissions.send_messages_in_threads |
-            Permissions.create_public_threads |
-            Permissions.create_private_threads |
-            Permissions.embed_links |
-            Permissions.attach_files |
-            Permissions.add_reactions |
-            Permissions.use_external_emojis |
-            Permissions.use_external_stickers |
-            Permissions.mention_everyone |
-            Permissions.manage_messages |
-            Permissions.pin_messages |
-            Permissions.manage_threads |
-            Permissions.read_message_history |
-            Permissions.send_tts_messages |
-            Permissions.send_voice_messages |
-            Permissions.send_polls
+            Permissions.send_messages
+            | Permissions.send_messages_in_threads
+            | Permissions.create_public_threads
+            | Permissions.create_private_threads
+            | Permissions.embed_links
+            | Permissions.attach_files
+            | Permissions.add_reactions
+            | Permissions.use_external_emojis
+            | Permissions.use_external_stickers
+            | Permissions.mention_everyone
+            | Permissions.manage_messages
+            | Permissions.pin_messages
+            | Permissions.manage_threads
+            | Permissions.read_message_history
+            | Permissions.send_tts_messages
+            | Permissions.send_voice_messages
+            | Permissions.send_polls
         )
 
     @classmethod
     def voice_channels(cls) -> Permissions:
         """Returns a Permissions object with all the UI "Voice channels" section permissions enabled."""
         return (
-            Permissions.connect |
-            Permissions.speak |
-            Permissions.stream |
-            Permissions.use_soundboard |
-            Permissions.use_external_sounds |
-            Permissions.use_vad |
-            Permissions.priority_speaker |
-            Permissions.mute_members |
-            Permissions.deafen_members |
-            Permissions.move_members
+            Permissions.connect
+            | Permissions.speak
+            | Permissions.stream
+            | Permissions.use_soundboard
+            | Permissions.use_external_sounds
+            | Permissions.use_vad
+            | Permissions.priority_speaker
+            | Permissions.mute_members
+            | Permissions.deafen_members
+            | Permissions.move_members
         )
 
     @classmethod
     def apps(cls) -> Permissions:
         """Returns a Permissions object with all the UI "Apps" section permissions enabled."""
-        return (
-            Permissions.use_application_commands |
-            Permissions.use_embedded_activities |
-            Permissions.use_external_apps
-        )
+        return Permissions.use_application_commands | Permissions.use_embedded_activities | Permissions.use_external_apps
 
     @classmethod
     def stage_channels(cls) -> Permissions:
@@ -533,10 +530,7 @@ class Permissions(Flag):
     @classmethod
     def events(cls) -> Permissions:
         """Returns a Permissions object with all the UI "Events" section permissions enabled."""
-        return (
-            Permissions.create_events |
-            Permissions.manage_events
-        )
+        return Permissions.create_events | Permissions.manage_events
 
     @classmethod
     def advanced(cls) -> Permissions:

@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -233,7 +234,9 @@ class DiscordWebSocketPoller:
         if not compress:
             self.gateway_url = self.gateway_url.with_query(v=API_VERSION, encoding=encoding)
         else:
-            self.gateway_url = self.gateway_url.with_query(v=API_VERSION, encoding=encoding, compress=ActiveDecompressor.COMPRESSION_TYPE)
+            self.gateway_url = self.gateway_url.with_query(
+                v=API_VERSION, encoding=encoding, compress=ActiveDecompressor.COMPRESSION_TYPE
+            )
 
     def has_started(self) -> bool:
         return self.started.is_set()

@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -266,6 +267,7 @@ class Message(PartialMessage):
     """Represents a message object."""
 
     if TYPE_CHECKING:
+
         @deprecated("Message.interaction is deprecated in favor of Message.interaction_metadata")
         @property
         def interaction(self) -> MessageInteraction | None:
@@ -299,18 +301,11 @@ class Message(PartialMessage):
         """Whether this message is TTS."""
         self.mention_everyone: bool = data.get("mention_everyone", False)
         """Whether this message mentions ``@everyone``."""
-        self._user_mentions: dict[int, User] = {
-            int(d["id"]): User(d, cache)
-            for d in data.get("mentions", [])
-        }
+        self._user_mentions: dict[int, User] = {int(d["id"]): User(d, cache) for d in data.get("mentions", [])}
         self._channel_mentions: dict[int, Channel] = {
-            int(d["id"]): channel_factory(d, cache)
-            for d in data.get("mention_channels", [])
+            int(d["id"]): channel_factory(d, cache) for d in data.get("mention_channels", [])
         }
-        self._role_mentions: dict[int, Role] = {
-            int(d["id"]): Role(d, cache)
-            for d in data.get("mention_roles", [])
-        }
+        self._role_mentions: dict[int, Role] = {int(d["id"]): Role(d, cache) for d in data.get("mention_roles", [])}
         self.attachments: list[Attachment] = [Attachment(a, cache) for a in data.get("attachments", [])]
         """The attachments of this message."""
         self.embeds: list[Embed] = [Embed.from_dict(e) for e in data.get("embeds", [])]
@@ -334,7 +329,9 @@ class Message(PartialMessage):
         self._flags: int = data.get("flags", 0)
         self.message_reference: MessageReference | None = MessageReference.from_dict(data.get("message_reference"), cache)
         """The referenced message. This may be applicable for crossposts, channel follow adds, pins, or replies."""
-        self.message_snapshots: list[MessageSnapshot] = MessageSnapshot.from_dict_array(data.get("message_snapshots"), cache, self.message_reference)
+        self.message_snapshots: list[MessageSnapshot] = MessageSnapshot.from_dict_array(
+            data.get("message_snapshots"), cache, self.message_reference
+        )
         """The snapshots of this message. This is only applicable when :attr:`message_reference` is not :data:`None` and
         :attr:`Message.message_reference.type <MessageReference.type>` is :attr:`MessageReferenceType.forward`.
         """
@@ -369,7 +366,9 @@ class Message(PartialMessage):
         """The sticker items of this message."""
         self.position: int | None = data.get("position")
         """The estimated position of this message in its :attr:`thread`."""
-        self.role_subscription_data: RoleSubscriptionData | None = RoleSubscriptionData.from_dict(data.get("role_subscription_data"))
+        self.role_subscription_data: RoleSubscriptionData | None = RoleSubscriptionData.from_dict(
+            data.get("role_subscription_data")
+        )
         """The role subscription data of this message. This is only applicable when :attr:`type` is
         :attr:`MessageType.role_subscription_purchase`.
         """
@@ -406,6 +405,7 @@ class MessageSnapshot(PartialMessage):
     """Represents the snapshot of a message."""
 
     if TYPE_CHECKING:
+
         @deprecated("MessageSnapshot.stickers is deprecated in favor of MessageSnapshot.sticker_items")
         @property
         def stickers(self) -> list[Sticker]:
@@ -442,18 +442,11 @@ class MessageSnapshot(PartialMessage):
         self.edited_at: datetime.datetime | None = parse_time(data.get("edited_timestamp"))
         """When this message has been edited, if applicable."""
         self._flags: int = data.get("flags", 0)
-        self._user_mentions: dict[int, User] = {
-            int(d["id"]): User(d, cache)
-            for d in data.get("mentions", [])
-        }
+        self._user_mentions: dict[int, User] = {int(d["id"]): User(d, cache) for d in data.get("mentions", [])}
         self._channel_mentions: dict[int, Channel] = {
-            int(d["id"]): channel_factory(d, cache)
-            for d in data.get("mention_channels", [])
+            int(d["id"]): channel_factory(d, cache) for d in data.get("mention_channels", [])
         }
-        self._role_mentions: dict[int, Role] = {
-            int(d["id"]): Role(d, cache)
-            for d in data.get("mention_roles", [])
-        }
+        self._role_mentions: dict[int, Role] = {int(d["id"]): Role(d, cache) for d in data.get("mention_roles", [])}
         self.sticker_items: list[StickerItem] = [StickerItem(d, cache) for d in data.get("sticker_items", [])]
         """The sticker items of this message."""
         self.components: list[Component] = [_pd_to_component(c, cache) for c in data.get("components", [])]
@@ -486,7 +479,9 @@ class MessageSnapshot(PartialMessage):
         return None
 
     @classmethod
-    def from_dict_array(cls, data: list[dict[str, Any]] | None, cache: CacheProtocol, reference: MessageReference) -> list[MessageSnapshot]:
+    def from_dict_array(
+        cls, data: list[dict[str, Any]] | None, cache: CacheProtocol, reference: MessageReference
+    ) -> list[MessageSnapshot]:
         if not data:
             return []
         return [MessageSnapshot(d, cache, reference) for d in data]
@@ -510,9 +505,7 @@ class MessageInteractionMetadata(Hashable):
             self.user.__init__(data["user"], cache)
 
         self._integration_owners: dict[int, int] = {
-            int(k): int(v)
-            for k, v in
-            data.get("authorizing_integration_owners", {}).items()
+            int(k): int(v) for k, v in data.get("authorizing_integration_owners", {}).items()
         }
         self.original_response_id: int | None = _get_snowflake("original_response_id", data)
         """The ID of the original response message."""
@@ -573,7 +566,9 @@ class MessageInteractionMetadata(Hashable):
         return self._integration_owners.get(1) == self.user.id
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None, cache: CacheProtocol, message: Message) -> MessageInteractionMetadata | None:
+    def from_dict(
+        cls, data: dict[str, Any] | None, cache: CacheProtocol, message: Message
+    ) -> MessageInteractionMetadata | None:
         if data is None:
             return None
         return MessageInteractionMetadata(data, cache, message)

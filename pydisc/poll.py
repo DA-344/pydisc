@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -237,7 +238,7 @@ class Poll:
         answer = self._answers[self._victor_answer_id]
         answer._victor = True
         answer._vote_count = int(victor_answer_votes)
-        self._answers[answer.id] = answer 
+        self._answers[answer.id] = answer
 
     def _update_results(self, data: dict[str, Any]) -> None:
         self._finalized = data["is_finalized"]
@@ -276,8 +277,7 @@ class Poll:
             multiple_answers=multiselect,
         )
         self._answers = {
-            int(answer["answer_id"]): PollAnswer.from_dict(answer, message._cache, self)
-            for answer in data["answers"]
+            int(answer["answer_id"]): PollAnswer.from_dict(answer, message._cache, self) for answer in data["answers"]
         }
         self._message = message
         self._expiry = expiry
@@ -300,7 +300,7 @@ class Poll:
             "question": self.question.to_dict(),
             "duration": self.duration.total_seconds() / 3600,
             "layout_type": self.layout_type.value,
-            "answers": [a.to_dict() for a in self.answers]
+            "answers": [a.to_dict() for a in self.answers],
         }
 
     @property

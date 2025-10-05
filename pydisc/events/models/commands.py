@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -33,15 +34,18 @@ if TYPE_CHECKING:
     from pydisc.cache._types import CacheProtocol
     from pydisc.commands import ApplicationCommandPermissions
 
-
     class CommandPermissionsUpdate(_RichGetterModel, ApplicationCommandPermissions):
         """Represents an ``on_command_permissions_update`` event payload."""
+
         data: ApplicationCommandPermissions
+
 else:
+
     class CommandPermissionsUpdate(_RichGetterModel):
         """Represents an ``on_command_permissions_update`` event payload."""
 
         def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
             from pydisc.commands import ApplicationCommandPermissions
+
             self.data: ApplicationCommandPermissions = ApplicationCommandPermissions(data, cache)
             """The data of this event."""

@@ -8,6 +8,4 @@ that are parsed when received from the API.
 
 from .core import EventModel
 
-__all__ = (
-    "EventModel",
-)
+__all__ = ("EventModel",)

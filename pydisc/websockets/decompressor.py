@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import Protocol
@@ -49,20 +50,26 @@ class Decompressor(Protocol):
 ActiveDecompressor: type[Decompressor]
 
 if _HAS_ZSTD:
+
     class _ZstdDecompressionContext:
         __slots__ = ("context",)
 
         COMPRESSION_TYPE: str = "zstd-stream"
 
         def __init__(self) -> None:
-            decompressor = zstandard.ZstdDecompressor()  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable, reportUnknownVariableType]
+            decompressor = (
+                zstandard.ZstdDecompressor()
+            )  # pyright: ignore[reportUnknownMemberType, reportPossiblyUnboundVariable, reportUnknownVariableType]
             self.context = decompressor.decompressobj()  # pyright: ignore[reportUnknownMemberType]
 
         def decompress(self, data: bytes, /) -> str | None:
-            return self.context.decompress(data).decode("utf-8")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            return self.context.decompress(data).decode(
+                "utf-8"
+            )  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
     ActiveDecompressor = _ZstdDecompressionContext
 else:
+
     class _ZlibDecompressionContext:
         __slots__ = ("context", "buffer")
 

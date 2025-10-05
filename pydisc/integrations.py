@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -56,8 +57,7 @@ class IntegrationAccount(Hashable):
 
 
 class PartialIntegration(Hashable):
-    """Represents a partial :class:`Integration`.
-    """
+    """Represents a partial :class:`Integration`."""
 
     def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
         self._cache: CacheProtocol = cache
@@ -83,8 +83,7 @@ class PartialIntegration(Hashable):
 
 
 class Integration(PartialIntegration):
-    """Represents an integration.
-    """
+    """Represents an integration."""
 
     def __init__(self, data: dict[str, Any], cache: CacheProtocol, guild: Guild) -> None:
         super().__init__(data, cache)

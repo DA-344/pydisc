@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import Any, Self, TypeVar
@@ -84,6 +85,8 @@ class Enum(Enumb):
         cls._member_map_[name] = obj
         cls._value2member_map_[value] = obj
         return obj
+
+
 """
 TODO: MAYBE, JUST MAYBE, document all enum members
 
@@ -91,6 +94,7 @@ most of them were left undocumented because they were like already
 described by the enum name. such as ActivityType.playing, but would
 be nice to have them documented.
 """
+
 
 class InteractionType(Enum):
     """Represents an interaction type."""
@@ -116,8 +120,8 @@ class InteractionContextType(Enum):
     """Interaction was triggered from the bot's DM."""
     private_channel = 2
     """Interaction was triggered from a private channel."""
-    
-    
+
+
 class CommandType(Enum):
     """Represents a command type."""
 
@@ -172,10 +176,8 @@ class CommandOptionType(Enum):
                 return CommandOptionType.number
             else:
                 raise ValueError("integer can only be combined with a floating (number) or integer")
-        elif (
-            (other is CommandOptionType.role and self is CommandOptionType.user)
-            or
-            (other is CommandOptionType.user and self is CommandOptionType.role)
+        elif (other is CommandOptionType.role and self is CommandOptionType.user) or (
+            other is CommandOptionType.user and self is CommandOptionType.role
         ):
             return CommandOptionType.mentionable
         else:

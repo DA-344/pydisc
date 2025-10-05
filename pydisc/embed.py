@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -68,6 +69,7 @@ class EmbedMediaProxy(EmbedProxy):
 
 
 if TYPE_CHECKING:
+
     class _EmbedFooterProxy(Protocol):
         text: str | None
         icon_url: str | None
@@ -176,20 +178,20 @@ class Embed:
 
     def __eq__(self, other: Embed) -> bool:
         return isinstance(other, Embed) and (
-            self.type == other.type and
-            self.title == other.title and
-            self.url == other.url and
-            self.description == other.description and
-            self.color == other.color and
-            self.fields == other.fields and
-            self.timestamp == other.timestamp and
-            self.author == other.author and
-            self.thumbnail == other.thumbnail and
-            self.footer == other.footer and
-            self.image == other.image and
-            self.provider == other.provider and
-            self.video == other.video and
-            self._flags == other._flags
+            self.type == other.type
+            and self.title == other.title
+            and self.url == other.url
+            and self.description == other.description
+            and self.color == other.color
+            and self.fields == other.fields
+            and self.timestamp == other.timestamp
+            and self.author == other.author
+            and self.thumbnail == other.thumbnail
+            and self.footer == other.footer
+            and self.image == other.image
+            and self.provider == other.provider
+            and self.video == other.video
+            and self._flags == other._flags
         )
 
     @property
@@ -275,7 +277,7 @@ class Embed:
     @property
     def thumbnail(self) -> _EmbedMediaProxy:
         """Returns a proxy for this embed thumbnail."""
-        return EmbedProxy(getattr(self, "_thumbnail", {}))   # pyright: ignore[reportReturnType]
+        return EmbedProxy(getattr(self, "_thumbnail", {}))  # pyright: ignore[reportReturnType]
 
     def set_thumbnail(self, *, url: str) -> Self:
         """Sets a thumbnail to this embed."""
@@ -396,11 +398,7 @@ class Embed:
     def to_dict(self) -> dict[str, Any]:
         """Converts this embed object into a dict."""
 
-        result = {
-            key[1:]: getattr(self, key)
-            for key in Embed.__fields__
-            if hasattr(self, key)
-        }
+        result = {key[1:]: getattr(self, key) for key in Embed.__fields__ if hasattr(self, key)}
 
         try:
             color = result.pop("color")

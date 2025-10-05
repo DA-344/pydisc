@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -30,9 +31,7 @@ from typing import Generic, Literal, TypeVar, overload
 
 T = TypeVar("T", bool, Literal[True], Literal[False])
 
-__all__ = (
-    "ExponentialBackoff",
-)
+__all__ = ("ExponentialBackoff",)
 
 
 class ExponentialBackoff(Generic[T]):

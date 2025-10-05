@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -41,8 +42,7 @@ if TYPE_CHECKING:
 
 
 class ApplicationCommand(Hashable, Mentionable):
-    """Represents an application command received from the Discord API.
-    """
+    """Represents an application command received from the Discord API."""
 
     def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
         self.id: int = int(data["id"])
@@ -63,13 +63,19 @@ class ApplicationCommand(Hashable, Mentionable):
         """The command name."""
         self.description: str = data["description"]
         """The command description."""
-        self.default_member_permissions: Permissions | None = Permissions(int(data["default_member_permissions"])) if data.get("default_member_permissions") is not None else None
+        self.default_member_permissions: Permissions | None = (
+            Permissions(int(data["default_member_permissions"]))
+            if data.get("default_member_permissions") is not None
+            else None
+        )
         """The set of permissions required for a user to use this command. This can be changed by server administrators."""
         self.nsfw: bool = data.get("nsfw", False)
         """Whether this command is marked as NSFW, and thus only available on NSFW-flagged channels."""
         self.version: int = int(data["version"])
         """An autoincrementing version identifier updated during substantial record changes."""
-        self.handler_type: EntryPointHandlerType | None = try_enum(EntryPointHandlerType, data["handler"]) if data.get("handler") is not None else None
+        self.handler_type: EntryPointHandlerType | None = (
+            try_enum(EntryPointHandlerType, data["handler"]) if data.get("handler") is not None else None
+        )
         """The handler type of this command. This is only applicable when :attr:`.type` is :attr:`CommandType.primary_entry_point`."""
         self.options: list[Option] = Option.from_dict_array(data.get("options"))
         """This command's options. This is only applicable when :attr:`.type` is :attr:`CommandType.chat_input`."""
@@ -153,7 +159,9 @@ class ApplicationCommandPermissionOverwrite(Hashable):
         return methods[self.type](self.id)
 
     @classmethod
-    def from_dict_array(cls, data: list[dict[str, Any]], cache: CacheProtocol, guild: int) -> list[ApplicationCommandPermissionOverwrite]:
+    def from_dict_array(
+        cls, data: list[dict[str, Any]], cache: CacheProtocol, guild: int
+    ) -> list[ApplicationCommandPermissionOverwrite]:
         return [ApplicationCommandPermissionOverwrite(d, guild, cache) for d in data]
 
 
@@ -169,8 +177,12 @@ class ApplicationCommandPermissions(Hashable):
         """The application ID owner of this command."""
         self.guild_id: int = int(data["guild_id"])
         """The guild ID this permissions belong to."""
-        self.permissions: list[ApplicationCommandPermissionOverwrite] = ApplicationCommandPermissionOverwrite.from_dict_array(
-            data["permissions"], cache, self.guild_id,
+        self.permissions: list[ApplicationCommandPermissionOverwrite] = (
+            ApplicationCommandPermissionOverwrite.from_dict_array(
+                data["permissions"],
+                cache,
+                self.guild_id,
+            )
         )
         """The permission overwrites for this command in this guild."""
 

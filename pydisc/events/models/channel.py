@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -39,10 +40,13 @@ if TYPE_CHECKING:
 
     class _ChannelEvent(_RichGetterModel, Channel):
         data: Channel
+
 else:
+
     class _ChannelEvent(_RichGetterModel):
         def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
             from pydisc.channels.factory import channel_factory
+
             self.data: Channel = channel_factory(data, cache)
 
 

@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from enum import Enum
@@ -96,6 +97,7 @@ def handle_literal(args: tuple[Any, ...], param: inspect.Parameter) -> tuple[lis
 
 def is_channel(obj: type | object) -> TypeIs[abc.Channel]:
     from pydisc.abc import Channel
+
     # linter doing linting things
     if isinstance(obj, Channel):
         return True
@@ -139,8 +141,7 @@ def resolve_args(annotation: Any, param: inspect.Parameter, default_kwargs: dict
 
 
 class Option:
-    """Represents an application command's option.
-    """
+    """Represents an application command's option."""
 
     def __init__(
         self,
@@ -191,7 +192,9 @@ class Option:
         self._parameter: inspect.Parameter | None = None
 
     @classmethod
-    def from_parameter(cls, parameter: inspect.Parameter, globalns: dict[str, Any], localns: dict[str, Any], cache: dict[str, Any]) -> Option:
+    def from_parameter(
+        cls, parameter: inspect.Parameter, globalns: dict[str, Any], localns: dict[str, Any], cache: dict[str, Any]
+    ) -> Option:
         if not parameter.annotation or parameter.annotation is parameter.empty:
             raise TypeError(f"application commands must have type annotations, {parameter.name} is missing it")
 
@@ -298,8 +301,7 @@ class Option:
 
 
 class Choice(Generic[C]):
-    """Represents an option's choices.
-    """
+    """Represents an option's choices."""
 
     def __init__(
         self,

@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -37,11 +38,13 @@ try:
 
     def _to_json(obj: Any) -> str:
         return __to_json(obj).decode("utf-8")  # type: ignore
+
 except ImportError:
     from json import loads as _from_json, dumps as __to_json
 
     def _to_json(obj: Any) -> str:
         return __to_json(obj, separators=(",", ":"), ensure_ascii=True)
+
 
 if TYPE_CHECKING:
     _from_json: Callable[..., Any]
@@ -186,10 +189,7 @@ def resolve_annotation(
 
 def _iter_proto_names(proto: type) -> set[str]:
     anns = set(ProtocolMeta.__get_annotations__(proto))
-    dict_names = {
-        k for k in proto.__dict__.keys()
-        if not k.startswith("__")  # no dunders
-    }
+    dict_names = {k for k in proto.__dict__.keys() if not k.startswith("__")}  # no dunders
     return anns | dict_names
 
 
@@ -264,6 +264,7 @@ class ClassProperty(Generic[F, FR]):
         else:
             raise TypeError("value to set for {self._func.__name__} must be a boolean")
 
+
 def class_property(func: Callable[[F], FR]) -> ClassProperty[F, FR]:
     return ClassProperty(func)  # type: ignore
 
@@ -271,8 +272,10 @@ def class_property(func: Callable[[F], FR]) -> ClassProperty[F, FR]:
 @overload
 def parse_time(dt: None) -> None: ...
 
+
 @overload
 def parse_time(dt: str) -> datetime.datetime: ...
+
 
 def parse_time(dt: str | None) -> datetime.datetime | None:
     """Parses a datetime string into a datetime.datetime object."""
@@ -328,10 +331,14 @@ def _get_pred(item: Any, attrs: dict[str, Any]) -> bool:
 @overload
 def find(predicate: Callable[[T], bool], iterable: Iterable[T], *, count: int = ...) -> list[T]: ...
 
+
 @overload
 async def find(predicate: Callable[[T], bool], iterable: AsyncIterable[T], *, count: int = ...) -> list[T]: ...
 
-def find(predicate: Callable[[T], bool], iterable: Iterable[T] | AsyncIterable[T], *, count: int | None = None) -> list[T] | Coroutine[None, None, list[T]]:
+
+def find(
+    predicate: Callable[[T], bool], iterable: Iterable[T] | AsyncIterable[T], *, count: int | None = None
+) -> list[T] | Coroutine[None, None, list[T]]:
     """Returns ``count`` (or all) items in ``iterable`` that meet ``predicate``.
 
     If ``iterable`` is an :class:`collections.abc.AsyncIterable`, then this returns a coroutine.
@@ -359,8 +366,10 @@ def _get(iterable: Iterable[T], attrs: dict[str, Any]) -> T | None:
 @overload
 def get(iterable: Iterable[T], /, **attrs: Any) -> T | None: ...
 
+
 @overload
 async def get(iterable: AsyncIterable[T], /, **attrs: Any) -> T | None: ...
+
 
 def get(iterable: Iterable[T] | AsyncIterable[T], /, **attrs: Any) -> (T | None) | Coroutine[None, None, T | None]:
     """A shortcut of :func:`find` that passes a predicate that gets attributes from the items in ``iterable``

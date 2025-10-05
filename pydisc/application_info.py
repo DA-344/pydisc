@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
@@ -44,8 +45,7 @@ __all__ = (
 
 
 class ApplicationInfo(Hashable):
-    """Represents the available information from an application.
-    """
+    """Represents the available information from an application."""
 
     def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
         self.id: int = int(data["id"])

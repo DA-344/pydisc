@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 """
@@ -29,6 +30,6 @@ of discord.py, or should we just stick with the most similar objects from the
 discord documentation? suggestions on this would be nice
 """
 
+
 class AuditLog:
-    """Represents an audit log object.
-    """
+    """Represents an audit log object."""

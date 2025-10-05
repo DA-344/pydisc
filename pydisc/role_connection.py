@@ -21,15 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 from typing import Any
 
 from .missing import MissingOr, MISSING
 from .enums import ApplicationRoleConnectionMetadataType, Locale, try_enum
 
-__all__ = (
-    "ApplicationRoleConnectionMetadata",
-)
+__all__ = ("ApplicationRoleConnectionMetadata",)
 
 
 class ApplicationRoleConnectionMetadata:
@@ -89,7 +88,7 @@ class ApplicationRoleConnectionMetadata:
             name=data["name"],
             description=data["description"],
             name_localizations=data.get("name_localizations", MISSING),
-            description_localizations=data.get("description_localizations", MISSING)
+            description_localizations=data.get("description_localizations", MISSING),
         )
 
     def to_dict(self) -> dict[str, Any]:

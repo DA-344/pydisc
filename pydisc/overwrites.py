@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 from typing import Any
 
@@ -28,9 +29,7 @@ from .flags import Permissions
 from .enums import PermissionOverwriteType, try_enum
 from .utils import get
 
-__all__ = (
-    "PermissionOverwrite",
-)
+__all__ = ("PermissionOverwrite",)
 
 
 class PermissionOverwrite:

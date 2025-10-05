@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -42,9 +43,7 @@ T = TypeVar("T")
 Coro = Callable[..., Coroutine[Any, Any, T]]
 _log = logging.getLogger(__name__)
 
-__all__ = (
-    "EventRouter",
-)
+__all__ = ("EventRouter",)
 
 
 class EventRouter:
@@ -179,8 +178,7 @@ class EventRouter:
         self.task_set.add(task)
         task.add_done_callback(self.task_set.discard)
 
-    async def handle_interaction(self, payload: InteractionCreate) -> None:
-        ...
+    async def handle_interaction(self, payload: InteractionCreate) -> None: ...
 
     async def _parse_event(self, event: str, model: EventModel) -> None:
         model = await model.async_setup()

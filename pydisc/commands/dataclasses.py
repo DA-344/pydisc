@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable, Coroutine, Sequence
@@ -43,12 +44,10 @@ if TYPE_CHECKING:
     P = ParamSpec("P")
     T = TypeVar("T")
     CommandCallback = (
-        Callable[[Concatenate[CommandInteraction, P]], Coroutine[Any, Any, T]] |
-        Callable[[Concatenate[Cog, CommandInteraction, P]], Coroutine[Any, Any, T]]
+        Callable[[Concatenate[CommandInteraction, P]], Coroutine[Any, Any, T]]
+        | Callable[[Concatenate[Cog, CommandInteraction, P]], Coroutine[Any, Any, T]]
     )
-    AutocompleteCallback = (
-        Callable[[AutocompleteInteraction, Any], list[Choice[Any]]]
-    )
+    AutocompleteCallback = Callable[[AutocompleteInteraction, Any], list[Choice[Any]]]
 
 
 class Command(Generic[P, T]):
@@ -116,7 +115,9 @@ class Command(Generic[P, T]):
             try:
                 next(params_iter)
             except StopIteration:
-                raise SyntaxError("a required parameter (cog [if in a cog context] or interaction) is missing from the command's parameters")
+                raise SyntaxError(
+                    "a required parameter (cog [if in a cog context] or interaction) is missing from the command's parameters"
+                )
 
         cache = {}
         options = [Option.from_parameter(parameter, globals(), locals(), cache) for parameter in params_iter]
@@ -165,18 +166,24 @@ class ContextMenu(Command[P, T]):
             try:
                 next(params_iter)
             except StopIteration:
-                raise SyntaxError("a required parameter (cog [if in a cog context] or interaction) is missing from the context menu's parameters")
+                raise SyntaxError(
+                    "a required parameter (cog [if in a cog context] or interaction) is missing from the context menu's parameters"
+                )
 
         remaining = list(params_iter)
 
         if len(remaining) > 1:
             # context menu commands can either take message or user, not more than one parameter
-            raise SyntaxError(f"context menu callbacks take 2 parameters, interaction and user/message, or 3 if in a cog context, not {len(remaining)}")
+            raise SyntaxError(
+                f"context menu callbacks take 2 parameters, interaction and user/message, or 3 if in a cog context, not {len(remaining)}"
+            )
 
         uom = remaining[0]
 
         if not uom.annotation or uom.annotation is uom.empty:
-            raise SyntaxError("context menu last parameter must be typed with abc.User, User, Member, User | Member, or Message")
+            raise SyntaxError(
+                "context menu last parameter must be typed with abc.User, User, Member, User | Member, or Message"
+            )
 
         ann = uom.annotation
 

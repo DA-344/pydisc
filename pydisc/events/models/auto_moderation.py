@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -44,11 +45,15 @@ if TYPE_CHECKING:
 
     class _AutoModEventProxy(_RichGetterModel, AutoModRule):
         data: AutoModRule
+
 else:
+
     class _AutoModEventProxy(_RichGetterModel):
         def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
             from pydisc.auto_moderation import AutoModRule
+
             self.data = AutoModRule(data, cache)
+
 
 AutoModRuleCreate = _AutoModEventProxy
 """Represents an ``on_auto_mod_rule_create`` event payload."""
@@ -66,6 +71,7 @@ class AutoModActionExecution(EventModel):
         """The guild ID in which the action was executed."""
 
         from pydisc.auto_moderation import AutoModAction
+
         self.action: AutoModAction = AutoModAction.from_dict(data["action"])
         """The action that was executed."""
 
