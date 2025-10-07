@@ -28,6 +28,12 @@ dynamic = ["version", "dependencies"]
 [project.urls]
 "Issue tracker" = "https://github.com/DA-344/pydisc/issues"
 
+[project.optional-dependencies]
+dev = [
+    "black==25.9.0",
+    "isort==6.1.0",
+]
+
 [tool.setuptools.dynamic]
 dependencies = { file = "requirements.txt" }
 
