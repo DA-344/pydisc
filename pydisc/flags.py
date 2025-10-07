@@ -38,6 +38,8 @@ __all__ = (
     "Permissions",
     "EmbedFlags",
     "ActivityFlags",
+    "UserFlags",
+    "MemberFlags",
 )
 
 

@@ -26,13 +26,15 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import datetime
+from functools import cached_property, partial
+import re
 from typing import TYPE_CHECKING, Any, Self
 from typing_extensions import deprecated
 
 from .abc import Channel, Snowflake
 from .user import User
 from .role import Role
-from .channels import PartialChannel, Thread
+from .channels import Thread
 from .channels.factory import channel_factory
 from .attachment import Attachment
 from .embed import Embed
@@ -50,7 +52,7 @@ from .flags import MessageFlags
 from .http import handle_message_parameters
 from .allowed_mentions import AllowedMentions
 from .enums import InteractionType, MessageActivityType, MessageReferenceType, MessageType, try_enum
-from .member import Member, PartialMember
+from .member import PartialMember
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol
@@ -121,7 +123,7 @@ class PartialMessage(Hashable):
             data = await http.edit_message(self.id, channel.id, params=params)
 
         if cached := cache.get_message(self.id):
-            cached.__init__(data, cache)
+            cached._update(data)
             return cached
 
         ret = Message(data, self._cache)
@@ -178,7 +180,7 @@ class PartialMessage(Hashable):
             data = await http.send_message(channel.id, params=params)
 
         if cached := cache.get_message(self.id):
-            cached.__init__(data, cache)
+            cached._update(data)
             return cached
 
         ret = Message(data, self._cache)
@@ -306,9 +308,9 @@ class Message(PartialMessage):
             int(d["id"]): channel_factory(d, cache) for d in data.get("mention_channels", [])
         }
         self._role_mentions: dict[int, Role] = {int(d["id"]): Role(d, cache) for d in data.get("mention_roles", [])}
-        self.attachments: list[Attachment] = [Attachment(a, cache) for a in data.get("attachments", [])]
+        self.attachments: list[Attachment] = Attachment.from_dict_array(data.get("attachments"), cache)
         """The attachments of this message."""
-        self.embeds: list[Embed] = [Embed.from_dict(e) for e in data.get("embeds", [])]
+        self.embeds: list[Embed] = Embed.from_dict_array(data.get("embeds"))
         """The embeds of this message."""
         self.reactions: list[Reaction] = Reaction.from_dict_array(data.get("reactions"), cache, self)
         """The reactions of this message."""
@@ -355,14 +357,14 @@ class Message(PartialMessage):
             cache.store_thread(self.thread)
         else:
             if thread:
-                self.thread.__init__(thread, cache)
+                self.thread._update(thread)
 
         self.components: list[Component] = [_pd_to_component(c, cache) for c in data.get("components", [])]
         """The components of this message.
 
         This does not include subclasses nor callbacks.
         """
-        self.sticker_items: list[StickerItem] = [StickerItem(s, cache) for s in data.get("sticker_items", [])]
+        self.sticker_items: list[StickerItem] = StickerItem.from_dict_array(data.get("sticker_items"), cache)
         """The sticker items of this message."""
         self.position: int | None = data.get("position")
         """The estimated position of this message in its :attr:`thread`."""
@@ -372,7 +374,10 @@ class Message(PartialMessage):
         """The role subscription data of this message. This is only applicable when :attr:`type` is
         :attr:`MessageType.role_subscription_purchase`.
         """
-        self._resolved: ResolvedData = ResolvedData()
+        self.poll: Poll | None = Poll.from_dict(data.get("poll"), self)
+        """The poll attached to this message."""
+        self.call: MessageCall | None = MessageCall.from_dict(data.get("call"), self._cache)
+        """This message's call data."""
 
         # i don't really like this solution but if we don't do this then
         # the deprecation notices wouldn't make effect and no warnings would
@@ -381,21 +386,202 @@ class Message(PartialMessage):
         if TYPE_CHECKING:
             pass
         else:
-            self.interaction: MessageInteraction | None = MessageInteraction.from_dict(data.get("interaction"), cache)
+            self.interaction: MessageInteraction | None = MessageInteraction.from_dict(data.get("interaction"), cache, self.guild)
             """The interaction data bound to this message.
 
             This attribute is deprecated, consider using :attr:`interaction_metadata`.
             """
-            self.stickers: list[Sticker] = [Sticker(s, cache) for s in data.get("stickers", [])]
+            self.stickers: list[Sticker] = Sticker.from_dict_array(data.get("stickers"), cache)
             """The stickers of this message.
 
             This attribute is deprecated, consider using :attr:`sticker_items` instead.
             """
 
+    def _update(self, data: dict[str, Any]) -> None:
+        for key in (
+            "content", "tts", "mention_everyone", "nonce",
+            "pinned"
+        ):
+            if key in data:
+                setattr(self, key, data[key])
+
+        if (position := data.get("position")) is not None:
+            self.position = int(position)
+
+        if (flags := data.get("flags")) is not None:
+            self._flags = int(flags)
+
+        for key, attr in (
+            ("timestamp", "created_at"),
+            ("edited_timestamp", "edited_at"),
+        ):
+            if key in data:
+                setattr(self, attr, parse_time(data[key]))
+
+        for key, factory in (  # type: ignore
+            ("embeds", Embed.from_dict_array),
+            ("reactions", partial(Reaction.from_dict_array, cache=self._cache, message=self)),
+            ("attachments", partial(Attachment.from_dict_array, cache=self._cache)),
+            ("activity", MessageActivity.from_dict),
+            ("message_reference", partial(MessageReference.from_dict, cache=self._cache)),
+            ("message_snapshots", partial(MessageSnapshot.from_dict_array, cache=self._cache)),
+            ("referenced_message", partial(Message.from_dict, cache=self._cache)),
+            ("interaction_metadata", partial(MessageInteractionMetadata.from_dict, cache=self._cache, message=self)),
+            ("components", lambda cs: [_pd_to_component(c, self._cache) for c in (cs or [])]),  # type: ignore
+            ("role_subscription_data", RoleSubscriptionData.from_dict),
+            ("sticker_items", partial(StickerItem.from_dict_array, cache=self._cache)),
+            ("interaction", partial(MessageInteraction.from_dict, cache=self._cache, guild=self.guild)),  # type: ignore
+            ("stickers", partial(Sticker.from_dict_array, cache=self._cache)),
+            ("poll", partial(Poll.from_dict, message=self)),
+            ("call", partial(MessageCall.from_dict, cache=self._cache)),
+        ):
+            if key in data:
+                # this depends on message_reference, and as it is called in order, we couldn't use the
+                # old reference object
+                if key == "referenced_message":
+                    setattr(self, key, factory(data[key], reference=self.message_reference))  # type: ignore
+                else:
+                    setattr(self, key, factory(data[key]))  # type: ignore
+
+    @property
+    def user_mentions(self) -> list[User]:
+        """Returns a list of the resolved users mentioned in this message."""
+        return list(self._user_mentions.values())
+
+    @property
+    def channel_mentions(self) -> list[Channel]:
+        """Returns a list of the resolved channels mentioned in this message.
+
+        Not all mentioned channels may be resolved.
+        """
+        return list(self._channel_mentions.values())
+
+    @property
+    def role_mentions(self) -> list[Role]:
+        """Returns a list of the resolved roles mentioned in this message."""
+        return list(self._role_mentions.values())
+
+    @cached_property
+    def raw_user_mentions(self) -> list[int]:
+        """Returns a list of the raw user mentions in this message.
+
+        This may have more items than :attr:`user_mentions` as this checks the message
+        content and is not received by the API.
+        """
+        return [int(x) for x in re.findall(r"<@!?([0-9]{15,20})>", self.content)]
+
+    @cached_property
+    def raw_channel_mentions(self) -> list[int]:
+        """Returns a list of the raw channel mentions in this message.
+
+        This may have more items than :attr:`channel_mentions` as this checks the message
+        content and is not received by the API.
+        """
+        return [int(x) for x in re.findall(r"<#([0-9]{15,20})>", self.content)]
+
+    @cached_property
+    def raw_role_mentions(self) -> list[int]:
+        """Returns a list of the raw role mentions in this message.
+
+        This may have more items than :attr:`role_mentions` as this checks the message
+        content and is not received by the API.
+        """
+        return [int(x) for x in re.findall(r"<@&([0-9]{15,20})>", self.content)]
+
+    @property
+    def cached_user_mentions(self) -> list[User]:
+        """Returns the cached resolved :class:`User`s from :attr:`raw_user_mentions`."""
+        ret: list[User] = []
+        for uid in self.raw_user_mentions:
+            cached = self._cache.get_user(uid)
+            if cached is not None:
+                ret.append(cached)
+        return ret
+
+    @property
+    def cached_channel_mentions(self) -> list[Channel]:
+        """Returns the cached resolved :class:`Channel`s from :attr:`raw_channel_mentions`."""
+        ret: list[Channel | Thread] = []
+        for chid in self.raw_channel_mentions:
+            cached = self._cache.get_channel_or_thread(chid)
+            if cached is not None:
+                ret.append(cached)
+        return ret
+
+    @property
+    def cached_role_mentions(self) -> list[Role]:
+        """Returns the cached resolved :class:`Role`s from :attr:`raw_role_mentions`."""
+        if self.guild is None:
+            return []
+
+        ret: list[Role] = []
+        for rid in self.raw_role_mentions:
+            cached = self.guild.get_role(rid)
+            if cached is not None:
+                ret.append(cached)
+        return ret
+
     @property
     def flags(self) -> MessageFlags:
         """The flags of this message."""
         return MessageFlags(self._flags)
+
+
+class MessageCall:
+    """Represents a call object attached to a message."""
+
+    def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
+        self._cache: CacheProtocol = cache
+        self._participants: dict[int, Snowflake] = {}
+        self.ended_at: datetime.datetime | None = parse_time(data.get("ended_timestamp"))
+        """When this call ended, or ``None`` if it has not yet ended."""
+
+        for uid in data["participants"]:
+            uid = int(uid)
+            user = cache.get_user(uid)
+            if user is None:
+                user = Object(id=uid, type=User)
+            self._participants[uid] = user
+
+    @property
+    def participants(self) -> list[Snowflake]:
+        r"""A sequence of resolved :class:`Snowflake`\s representing the users
+        that were part of this call. The objects in this list may be :class:`User`\s
+        if they were correctly resolved from cache.
+        """
+        return list(self._participants.values())
+
+    def get_participant(self, id: int, /) -> Snowflake | None:
+        """Returns a participant of this call with :attr:`Snowflake.id` as ``id``."""
+        return self._participants.get(id)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None, cache: CacheProtocol) -> MessageCall | None:
+        if data is None:
+            return None
+        return MessageCall(data, cache)
+
+
+class RoleSubscriptionData(Hashable):
+    """Represents the role subscription data of a message when its :attr:`Message.type` is
+    :attr:`MessageType.role_subscription_notification`.
+    """
+
+    def __init__(self, data: dict[str, Any]) -> None:
+        self.listing_id: int = int(data["role_subscription_listing_id"])
+        """The ID of the SKU and listing the user has subscribed to."""
+        self.tier_name: str = data["tier_name"]
+        """The name of the tier the user has subscribed to."""
+        self.total_months_subscribed: int = data["total_months_subscribed"]
+        """The total count of months the user has subscribed to the role."""
+        self.renewal: bool = data["is_renewal"]
+        """Whether this purchase is for a renewal instead of a new subscription."""
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> RoleSubscriptionData | None:
+        if data is None:
+            return None
+        return RoleSubscriptionData(data)
 
 
 # I'd really like to follow the API structure here, but only if
@@ -480,9 +666,9 @@ class MessageSnapshot(PartialMessage):
 
     @classmethod
     def from_dict_array(
-        cls, data: list[dict[str, Any]] | None, cache: CacheProtocol, reference: MessageReference
+        cls, data: list[dict[str, Any]] | None, cache: CacheProtocol, reference: MessageReference | None
     ) -> list[MessageSnapshot]:
-        if not data:
+        if not data or not reference:
             return []
         return [MessageSnapshot(d, cache, reference) for d in data]
 
@@ -502,7 +688,7 @@ class MessageInteractionMetadata(Hashable):
         """The user that triggered the interaction."""
         if cached_user := cache.get_user(self.user.id):
             self.user = cached_user
-            self.user.__init__(data["user"], cache)
+            self.user._update(data["user"])
 
         self._integration_owners: dict[int, int] = {
             int(k): int(v) for k, v in data.get("authorizing_integration_owners", {}).items()
@@ -525,7 +711,7 @@ class MessageInteractionMetadata(Hashable):
                 cache.store_user(self.target_user)
         else:
             if target_user:
-                self.target_user.__init__(target_user, cache)
+                self.target_user._update(target_user)
 
         self.target_message_id: int | None = _get_snowflake("target_message_id", data)
         """The message ID the command was executed on. In case :attr:`type` is :attr:`InteractionType.command`
@@ -584,7 +770,7 @@ class MessageInteraction(Hashable):
     This is deprecated in favor of :attr:`Message.interaction_metadata`.
     """
 
-    def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
+    def __init__(self, data: dict[str, Any], cache: CacheProtocol, guild: Guild | None) -> None:
         self.id: int = int(data["id"])
         """The ID of the interaction."""
         self.type: InteractionType = try_enum(InteractionType, data["type"])
@@ -598,17 +784,27 @@ class MessageInteraction(Hashable):
 
         if cached_user := cache.get_user(self.user.id):
             self.user = cached_user
-            self.user.__init__(user, cache)
+            self.user._update(user)
 
         member: dict[str, Any] | None = data.get("member")
-        self.member: PartialMember | None = cache.get_member(_get_snowflake("id", member or {}))
+        member_id: int | None = _get_snowflake("id", member or {})
+        self.member: PartialMember | None = None
         """The member data that invoked the interaction, if in a guild context."""
 
+        if guild and member_id:
+            self.member = guild.get_member(member_id)
+
         if self.member is None:
-            self.member = PartialMember.from_dict(member, cache)
+            self.member = PartialMember.from_dict(member, cache, guild)
         else:
             if member:
-                self.member.__init__(member, cache)
+                self.member._update(member, guild)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None, cache: CacheProtocol, guild: Guild | None) -> MessageInteraction | None:
+        if data is None:
+            return None
+        return MessageInteraction(data, cache, guild)
 
 
 class MessageActivity:

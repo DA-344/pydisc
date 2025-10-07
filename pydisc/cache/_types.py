@@ -121,7 +121,8 @@ class CacheProtocol(Protocol):
         from pydisc.message import Message
 
         ret = Message(data, self)
-        self.store_message(ret)
+        if self.get_message(ret.id) is None:
+            self.store_message(ret)
         return ret
 
     def get_command(self, name: str | None, /) -> Command | Group | ContextMenu | None:
@@ -191,7 +192,7 @@ class CacheProtocol(Protocol):
         """Removes a component from the cache."""
         raise NotImplementedError
 
-    def get_member(self, id: int | None, /) -> Member | None:
+    def get_member(self, guild_id: int | None, id: int | None, /) -> Member | None:
         """Gets a member from the cache."""
         raise NotImplementedError
 
@@ -214,3 +215,7 @@ class CacheProtocol(Protocol):
     def remove_thread(self, id: int, /) -> Thread | None:
         """Removes a thread from the cache."""
         raise NotImplementedError
+
+    def get_channel_or_thread(self, id: int | None, /) -> abc.Channel | Thread | None:
+        """A shortcut for :meth:`get_channel` or :meth:`get_thread`."""
+        return self.get_channel(id) or self.get_thread(id)

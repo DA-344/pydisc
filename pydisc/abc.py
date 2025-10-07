@@ -40,13 +40,12 @@ if TYPE_CHECKING:
     from .cache._types import CacheProtocol
     from .user import AvatarDecoration, PrimaryGuild, User as FullUser
     from .collectibles import Collectibles
-    from .message import PartialMessage, MessageReference
     from .embed import Embed
     from .file import File
     from .allowed_mentions import AllowedMentions
     from .components import Component
     from .poll import Poll
-    from .message import PartialMessage, MessageReference
+    from .message import PartialMessage, Message, MessageReference
     from .guild import Guild
 
 __all__ = (
@@ -93,7 +92,7 @@ class User(Mentionable):
     """The ID of the user."""
     name: str
     """The name of the user."""
-    discriminator: int
+    discriminator: str
     """The discriminator of the user. This is ``0`` if the user has migrated to the pomelo rollout."""
     global_name: str | None
     """The global name of this user."""
@@ -125,7 +124,7 @@ class User(Mentionable):
         """Whether this user was mentioned in a message."""
         if message.content:
             return self.mention in message.content
-        return self.id in message.raw_mentions
+        return self.id in message.raw_user_mentions
 
     @property
     def public_flags(self) -> PublicUserFlags:
@@ -177,7 +176,7 @@ class User(Mentionable):
     @property
     def migrated(self) -> bool:
         """Whether the user has migrated to the pomelo username system."""
-        return self.discriminator == 0
+        return self.discriminator in ("0", "0000")
 
     async def fetch(self) -> FullUser:
         """Fetches the current user."""

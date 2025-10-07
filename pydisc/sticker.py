@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 from .asset import Asset
 from .mixins import Hashable
@@ -100,6 +100,12 @@ class StickerItem(Hashable):
         self._cache.store_sticker(sticker)
         return sticker
 
+    @classmethod
+    def from_dict_array(cls, data: list[dict[str, Any]] | None, cache: CacheProtocol) -> list[Self]:
+        if not data:
+            return []
+        return [cls(d, cache) for d in data]
+
 
 class Sticker(StickerItem):
     """Represents a sticker object that can be attached to a message."""
@@ -130,7 +136,7 @@ class Sticker(StickerItem):
                 cache.store_user(self.user)
         else:
             if user:
-                self.user.__init__(user, cache)
+                self.user._update(user)
 
         self.sort_value: int | None = data.get("sort_value")
         """The stickers sort order within its packet. Only applicable if :meth:`is_standard`

@@ -166,3 +166,7 @@ class PriviligedIntentsRequired(PydiscException):
             "and tick all those intents you need and have enabled in your code. If this can not be done, you should "
             "remove the conflicting Intent from the intents flags."
         )
+
+
+class ImproperToken(PydiscException):
+    """Excpetion raised when you pass a non-valid token to login into Discord."""

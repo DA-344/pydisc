@@ -64,6 +64,7 @@ __all__ = (
     "StickerType",
     "MessageReferenceType",
     "MessageActivityType",
+    "DefaultAvatarType",
     "try_enum",
 )
 
@@ -585,6 +586,17 @@ class MessageActivityType(Enum):
     spectate = 2
     listen = 3
     join_request = 4
+
+
+class DefaultAvatarType(Enum):
+    """Represents the default avatar type for a user."""
+
+    blurple = 0
+    gray = 1
+    green = 2
+    orange = 3
+    red = 4
+    pink = 5
 
 
 def try_enum(cls: type[E], value: Any) -> E:

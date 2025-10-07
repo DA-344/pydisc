@@ -24,6 +24,17 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .abc import User
+    from .role import Role
+    from .member import PartialMember
+    from .channels import PartialChannel
+    from .message import PartialMessage
+    from .attachment import Attachment
+    from .cache._types import CacheProtocol
+
 # mostly to prevent circular imports and such things
 
 __all__ = ("ResolvedData",)
@@ -33,3 +44,22 @@ class ResolvedData:
     """The resolved user, member, role, channel, message, and attachment data for an
     object.
     """
+
+    def __init__(self, data: dict[str, Any] | None, cache: CacheProtocol) -> None:
+        self._cache: CacheProtocol = cache
+        
+        self._users: dict[int, User] = {}
+        self._roles: dict[int, Role] = {}
+        self._channels: dict[int, PartialChannel] = {}
+        self._messages: dict[int, PartialMessage] = {}
+        self._attachments: dict[int, Attachment] = {}
+
+        self._update(data)
+
+    def _update(self, data: dict[str, Any] | None) -> None:
+        if not data:
+            return
+
+        cache = self._cache
+        members = data.get("members", {})
+        guild_id = self.

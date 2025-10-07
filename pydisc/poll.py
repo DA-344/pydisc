@@ -260,7 +260,9 @@ class Poll:
         return self._answers.get(id)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any], message: Message) -> Poll:
+    def from_dict(cls, data: dict[str, Any] | None, message: Message) -> Poll | None:
+        if data is None:
+            return None
         multiselect = data.get("allow_multiselect", False)
         layout = try_enum(PollLayoutType, data.get("layout_type", 1))
         question = PollMedia.from_dict(data["question"], message._cache)

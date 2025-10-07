@@ -201,3 +201,9 @@ class Attachment(AssetMixin, Hashable):
         if self.description is not None:
             pd["description"] = self.description
         return pd
+
+    @classmethod
+    def from_dict_array(cls, data: list[dict[str, Any]] | None, cache: CacheProtocol) -> list[Attachment]:
+        if not data:
+            return []
+        return [Attachment(d, cache) for d in data]

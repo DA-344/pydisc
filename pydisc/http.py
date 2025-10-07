@@ -40,7 +40,7 @@ from . import utils, __version__
 from .file import File
 from .embed import Embed
 from .ratelimits import RateLimiter
-from .errors import DiscordServerError, Forbidden, HTTPException, NotFound, RateLimited
+from .errors import DiscordServerError, Forbidden, HTTPException, NotFound, RateLimited, ImproperToken
 
 if TYPE_CHECKING:
     from .allowed_mentions import AllowedMentions
@@ -277,7 +277,10 @@ class RESTHandler:
         proxy_auth: aiohttp.BasicAuth | None = None,
         connector: aiohttp.BaseConnector | None = None,
         max_ratelimit_timeout: float | None = 30.0,
+        http_trace: aiohttp.TraceConfig | None = None,
     ) -> None:
+        from pydisc.websockets.response import DiscordWebSocketResponse
+
         self.loop: asyncio.AbstractEventLoop = loop
         self.base_url: str = base_url
         self.proxy: str | None = proxy
@@ -287,7 +290,10 @@ class RESTHandler:
             loop=loop,
             proxy=proxy,
             proxy_auth=proxy_auth,
-            connector=connector,
+            connector=connector or aiohttp.TCPConnector(limit=0),
+            ws_response_class=DiscordWebSocketResponse,
+            trace_configs=None if http_trace is None else [http_trace],
+            cookie_jar=aiohttp.DummyCookieJar(),
         )
         self._bucket_hashes: dict[str, str] = {}
         self._buckets: dict[str, RateLimiter] = {}
@@ -328,6 +334,9 @@ class RESTHandler:
         if key not in self._buckets:
             self._buckets[key] = RateLimiter(5, 1, name=key, max_ratelimit_timeout=self.max_ratelimit_timeout)
         return self._buckets[key]
+
+    # route methods
+    # -------------
 
     async def request(
         self,
@@ -495,6 +504,21 @@ class RESTHandler:
                     raise DiscordServerError(response, data)
                 raise HTTPException(response, data)
             raise RuntimeError("unreachable code")
+
+    # current user
+
+    async def login(self, token: str) -> dict[str, Any]:
+        old_token = self.token
+        self.token = token
+
+        try:
+            data = await self.request(Route("GET", "/users/@me"))
+        except HTTPException as exc:
+            self.token = old_token
+            if exc.status == 401:
+                raise ImproperToken from exc
+            raise
+        return data
 
     # stickers
 

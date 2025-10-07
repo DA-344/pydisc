@@ -476,3 +476,9 @@ class Embed:
                 setattr(self, f"_{attr}", value)
 
         return self
+
+    @classmethod
+    def from_dict_array(cls, data: list[Mapping[str, Any]] | None) -> list[Embed]:
+        if not data:
+            return []
+        return [Embed.from_dict(d) for d in data]

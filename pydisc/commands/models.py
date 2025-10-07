@@ -44,6 +44,31 @@ if TYPE_CHECKING:
 class ApplicationCommand(Hashable, Mentionable):
     """Represents an application command received from the Discord API."""
 
+    type: CommandType
+    """This application command's type."""
+    application_id: int
+    """The application ID this command is bound to."""
+    guild_id: int | None
+    """The specific guild ID in which this command is restricted to."""
+    name: str
+    """The command name."""
+    description: str
+    """The command description"""
+    default_member_permissions: Permissions | None
+    """The set of permissions required for a user to use this command. This can be changed by server administrators."""
+    nsfw: bool
+    """Whether this command is marked as NSFW, and thus only available on NSFW-flagged channels."""
+    version: int
+    """An autoincrementing version identifier updated during substantial record changes."""
+    handler_type: EntryPointHandlerType | None
+    """The handler type of this command. This is only applicable when :attr:`type` is :attr:`CommandType.primary_entry_point`."""
+    options: list[Option]
+    """This command's options. This is only applicable when :attr:`type` is :attr:`CommandType.chat_input`."""
+    name_localizations: dict[Locale, str]
+    """A mapping of :class:`Locale` and :class:`str` that represent the available localizations of this command's name."""
+    description_localizations: dict[Locale, str]
+    """A mapping of :class:`Locale` and :class:`str` that represent the available localizations of this command's description."""
+
     def __init__(self, data: dict[str, Any], cache: CacheProtocol) -> None:
         self.id: int = int(data["id"])
         self._cache: CacheProtocol = cache
@@ -54,45 +79,33 @@ class ApplicationCommand(Hashable, Mentionable):
 
     def _update(self, data: dict[str, Any], cache: CacheProtocol) -> None:
         self.type: CommandType = try_enum(CommandType, data.get("type", 1))
-        """This application commands' type."""
         self.application_id: int = int(data["application_id"])
-        """The application ID this command is bound to."""
         self.guild_id: int | None = _get_snowflake("guild_id", data)
-        """The specific guild ID in which this command is restricted to."""
         self.name: str = data["name"]
-        """The command name."""
         self.description: str = data["description"]
-        """The command description."""
         self.default_member_permissions: Permissions | None = (
             Permissions(int(data["default_member_permissions"]))
             if data.get("default_member_permissions") is not None
             else None
         )
-        """The set of permissions required for a user to use this command. This can be changed by server administrators."""
         self.nsfw: bool = data.get("nsfw", False)
-        """Whether this command is marked as NSFW, and thus only available on NSFW-flagged channels."""
         self.version: int = int(data["version"])
-        """An autoincrementing version identifier updated during substantial record changes."""
         self.handler_type: EntryPointHandlerType | None = (
             try_enum(EntryPointHandlerType, data["handler"]) if data.get("handler") is not None else None
         )
-        """The handler type of this command. This is only applicable when :attr:`.type` is :attr:`CommandType.primary_entry_point`."""
         self.options: list[Option] = Option.from_dict_array(data.get("options"))
-        """This command's options. This is only applicable when :attr:`.type` is :attr:`CommandType.chat_input`."""
         self.name_localizations: dict[Locale, str] = dict(
             map(
                 lambda i: (try_enum(Locale, i[0]), i[1]),
                 data.get("name_localizations", {}).items(),
             ),
         )
-        """A mapping of :class:`Locale` and :class:`str` that represent the available localizations of this command's name."""
         self.description_localizations: dict[Locale, str] = dict(
             map(
                 lambda i: (try_enum(Locale, i[0]), i[1]),
                 data.get("description_localizations", {}).items(),
             ),
         )
-        """A mapping of :class:`Locale` and :class:`str` that represent the available localizations of this command's description."""
 
     @property
     def guild(self) -> Guild | None:

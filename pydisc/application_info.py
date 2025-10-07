@@ -71,7 +71,7 @@ class ApplicationInfo(Hashable):
             self.bot = PartialUser.from_dict(bot_data, cache)
         else:
             if bot_data is not None:
-                self.bot.__init__(bot_data, cache)
+                self.bot._update(bot_data)
 
         self.terms_of_service_url: str | None = data.get("terms_of_service_url")
         """The terms of service url of this application."""
@@ -93,7 +93,7 @@ class ApplicationInfo(Hashable):
             self.guild = PartialGuild.from_dict(guild_data, cache)
         else:
             if guild_data is not None:
-                self.guild.__init__(guild_data, cache)
+                self.guild._update(guild_data)
 
         self.primary_sku_id: int | None = _get_snowflake("primary_sku_id", data)
         """The application's id of the SKU created in its game, if applicable."""
