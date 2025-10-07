@@ -35,8 +35,8 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
-    from pydisc.cache._types import CacheProtocol
     from pydisc.abc import Channel
+    from pydisc.cache._types import CacheProtocol
 
     class _ChannelEvent(_RichGetterModel, Channel):
         data: Channel

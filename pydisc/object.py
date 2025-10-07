@@ -27,8 +27,8 @@ from __future__ import annotations
 from typing import TypeVar
 
 from .abc import Snowflake
+from .missing import MISSING, MissingOr
 from .mixins import Hashable
-from .missing import MissingOr, MISSING
 
 S = TypeVar("S", bound="Snowflake | Hashable")
 

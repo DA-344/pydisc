@@ -21,25 +21,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import datetime
 from typing import TYPE_CHECKING, Any
 
-from .enums import ChannelType
 from .asset import Asset
-from .mixins import Hashable
-from .utils import parse_time
+from .channels import GuildChannel, StageChannel, TextChannel, Thread, VoiceChannel
+from .enums import ChannelType
 from .member import Member, VoiceState
-from .role import Role
+from .mixins import Hashable
 from .presences import Presence
-from .channels import GuildChannel, Thread, StageChannel, TextChannel, VoiceChannel
+from .role import Role
 from .scheduled_event import ScheduledEvent
+from .utils import parse_time
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol
 
-__all__ = ("UnavailableGuild", "PartialGuild", "Guild",)
+__all__ = (
+    "UnavailableGuild",
+    "PartialGuild",
+    "Guild",
+)
 
 
 class UnavailableGuild(Hashable):

@@ -27,10 +27,10 @@ from __future__ import annotations
 from io import BytesIO
 from typing import IO, TYPE_CHECKING, Literal
 
+import yarl
+
 from .file import File
 from .missing import MISSING, MissingOr
-
-import yarl
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

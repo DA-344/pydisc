@@ -37,18 +37,18 @@ import aiohttp
 import yarl
 
 from pydisc.activity import Activity
-from pydisc.utils import _to_json, _from_json
 from pydisc.errors import GatewayConnectionClosed, GatewayReconnectNeeded, WebSocketClosure
+from pydisc.utils import _from_json, _to_json
 
+from .decompressor import ActiveDecompressor, Decompressor
 from .enums import GatewayOPCodes as OPCodes
-from .decompressor import Decompressor, ActiveDecompressor
 
 if TYPE_CHECKING:
-    from pydisc.events.router import EventRouter
-    from pydisc.http import RESTHandler
     from pydisc.cache._types import CacheProtocol
     from pydisc.client import Client
     from pydisc.connection import ConnectionState
+    from pydisc.events.router import EventRouter
+    from pydisc.http import RESTHandler
 
 _log = logging.getLogger(__name__)
 

@@ -27,17 +27,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from pydisc.abc import Mentionable
-from pydisc.mixins import Hashable
 from pydisc.enums import CommandPermissionOverwriteType, CommandType, EntryPointHandlerType, Locale, try_enum
-from pydisc.utils import _get_snowflake
 from pydisc.flags import Permissions
+from pydisc.mixins import Hashable
+from pydisc.utils import _get_snowflake
 
 from .options import Option
 
 if TYPE_CHECKING:
+    from pydisc.abc import Channel, User
     from pydisc.cache._types import CacheProtocol
     from pydisc.guild import Guild
-    from pydisc.abc import User, Channel
     from pydisc.role import Role
 
 

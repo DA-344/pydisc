@@ -23,10 +23,11 @@ DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import annotations
+
 from typing import Any
 
-from .flags import Permissions
 from .enums import PermissionOverwriteType, try_enum
+from .flags import Permissions
 from .utils import get
 
 __all__ = ("PermissionOverwrite",)

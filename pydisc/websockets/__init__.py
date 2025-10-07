@@ -5,9 +5,9 @@ pydisc.websockets
 Sub-module that handles everything websocket-related in the library.
 """
 
-from .poller import DiscordWebSocketPoller
 from .decompressor import ActiveDecompressor, Decompressor
-from .enums import GatewayOPCodes, GatewayCloseCodes
+from .enums import GatewayCloseCodes, GatewayOPCodes
+from .poller import DiscordWebSocketPoller
 from .response import DiscordWebSocketResponse
 
 __all__ = (

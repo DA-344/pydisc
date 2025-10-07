@@ -7,11 +7,11 @@ Submodule that adds support for application commands.
 
 from .dataclasses import (
     Command,
-    Group,
     ContextMenu,
+    Group,
 )
 from .models import ApplicationCommand, ApplicationCommandPermissionOverwrite, ApplicationCommandPermissions
-from .options import Option, Choice
+from .options import Choice, Option
 
 __all__ = (
     "Command",

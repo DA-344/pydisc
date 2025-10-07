@@ -25,9 +25,9 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import asyncio
-from collections import deque
 import logging
 import time
+from collections import deque
 from typing import Any, Self
 
 import aiohttp

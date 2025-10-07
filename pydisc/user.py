@@ -31,7 +31,7 @@ from .abc import User as BaseUser
 from .asset import Asset
 from .collectibles import Collectibles
 from .enums import DefaultAvatarType, Locale, try_enum
-from .missing import MissingOr, MISSING
+from .missing import MISSING, MissingOr
 from .utils import _get_snowflake, bytes_to_base64
 
 if TYPE_CHECKING:
@@ -111,10 +111,11 @@ class PartialUser(BaseUser):
         for key, attr, factory in (
             ("avatar_decoration_data", "avatar_decoration", partial(AvatarDecoration.from_dict, cache=self._cache)),
             ("collectibles", "collectibles", partial(Collectibles.from_dict, cache=self._cache)),
-            ("primary_guild", "primary_guild", partial(PrimaryGuild.from_dict, cache=self._cache))
+            ("primary_guild", "primary_guild", partial(PrimaryGuild.from_dict, cache=self._cache)),
         ):
             if key in data:
                 setattr(self, attr, factory(data[key]))
+
 
 class User(PartialUser):
     """Represents a full user."""

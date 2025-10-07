@@ -27,12 +27,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from .asset import Asset
-from .emoji import Emoji
 from .color import Color
+from .emoji import Emoji
 from .flags import Permissions
-from .utils import _get_snowflake
-from .mixins import Hashable
 from .missing import MISSING, MissingOr
+from .mixins import Hashable
+from .utils import _get_snowflake
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

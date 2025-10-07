@@ -29,7 +29,7 @@ from typing import TYPE_CHECKING, Any
 from pydisc.enums import AutoModTriggerType, try_enum
 from pydisc.utils import _get_snowflake
 
-from .core import _RichGetterModel, EventModel
+from .core import EventModel, _RichGetterModel
 
 __all__ = (
     "AutoModRuleCreate",

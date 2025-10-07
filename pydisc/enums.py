@@ -24,8 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import Any, Self, TypeVar
 from enum import Enum as Enumb
+from typing import Any, Self, TypeVar
 
 E = TypeVar("E", bound="Enum")
 
@@ -189,9 +189,9 @@ class CommandOptionType(Enum):
 
     @classmethod
     def from_type(cls, typ: Any) -> CommandOptionType:
-        from pydisc.role import Role
+        from pydisc.abc import Channel, User
         from pydisc.attachment import Attachment
-        from pydisc.abc import User, Channel
+        from pydisc.role import Role
 
         if issubclass(typ, Role):
             return cls.role

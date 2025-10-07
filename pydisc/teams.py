@@ -28,8 +28,8 @@ from typing import TYPE_CHECKING, Any
 
 from .asset import Asset
 from .enums import TeamMemberRole, TeamMembershipState, try_enum
-from .user import User, PartialUser
 from .mixins import Hashable
+from .user import PartialUser, User
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

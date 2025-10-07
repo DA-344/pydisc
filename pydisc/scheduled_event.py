@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -28,8 +29,8 @@ from typing import TYPE_CHECKING, Any
 
 from .enums import ScheduledEventEntityType, ScheduledEventPrivacyLevel, ScheduledEventStatus, try_enum
 from .mixins import Hashable
-from .utils import _get_snowflake, parse_time
 from .user import User
+from .utils import _get_snowflake, parse_time
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol
@@ -98,7 +99,7 @@ class ScheduledEvent(Hashable):
         self.entity_type = try_enum(ScheduledEventEntityType, data["entity_type"])
         self.entity_id = _get_snowflake("entity_id", data)
         self.entity_metadata = ScheduledEventEntityMetadata.from_dict(data.get("entity_metadata"))
-    
+
         user = data.get("user")
         user_id = _get_snowflake("id", user or {})
 

@@ -25,8 +25,8 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable, Coroutine
 import logging
+from collections.abc import Callable, Coroutine
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, overload
 
 from .models import (
@@ -35,9 +35,9 @@ from .models import (
 )
 
 if TYPE_CHECKING:
+    from pydisc.cache._types import CacheProtocol
     from pydisc.client import Client
     from pydisc.connection import ConnectionState
-    from pydisc.cache._types import CacheProtocol
 
 T = TypeVar("T")
 Coro = Callable[..., Coroutine[Any, Any, T]]

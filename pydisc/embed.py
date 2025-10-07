@@ -24,8 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
 
 from . import utils

@@ -28,12 +28,12 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .abc import User
-    from .role import Role
-    from .member import PartialMember
-    from .channels import PartialChannel
-    from .message import PartialMessage
     from .attachment import Attachment
     from .cache._types import CacheProtocol
+    from .channels import PartialChannel
+    from .member import PartialMember
+    from .message import PartialMessage
+    from .role import Role
 
 # mostly to prevent circular imports and such things
 
@@ -47,7 +47,7 @@ class ResolvedData:
 
     def __init__(self, data: dict[str, Any] | None, cache: CacheProtocol) -> None:
         self._cache: CacheProtocol = cache
-        
+
         self._users: dict[int, User] = {}
         self._roles: dict[int, Role] = {}
         self._channels: dict[int, PartialChannel] = {}
@@ -62,4 +62,4 @@ class ResolvedData:
 
         cache = self._cache
         members = data.get("members", {})
-        guild_id = self.
+        guild_id = self

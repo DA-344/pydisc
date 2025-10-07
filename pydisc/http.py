@@ -25,32 +25,32 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Coroutine, Iterable, Sequence
 import logging
 import sys
+from collections.abc import Coroutine, Iterable, Sequence
 from types import TracebackType
 from typing import TYPE_CHECKING, Any, ClassVar, Final, NamedTuple, Self, TypeVar
-
-import aiohttp
 from urllib.parse import quote as _uriquote
 
+import aiohttp
+
+from . import __version__, utils
+from .embed import Embed
+from .errors import DiscordServerError, Forbidden, HTTPException, ImproperToken, NotFound, RateLimited
+from .file import File
 from .flags import MessageFlags
 from .missing import MISSING, MissingOr
-from . import utils, __version__
-from .file import File
-from .embed import Embed
 from .ratelimits import RateLimiter
-from .errors import DiscordServerError, Forbidden, HTTPException, NotFound, RateLimited, ImproperToken
 
 if TYPE_CHECKING:
+    from .abc import Snowflake
     from .allowed_mentions import AllowedMentions
     from .attachment import Attachment
+    from .cache._types import CacheProtocol
+    from .channels.forum import ForumTag
     from .components import Component
     from .message import MessageReference
     from .poll import Poll
-    from .cache._types import CacheProtocol
-    from .abc import Snowflake
-    from .channels.forum import ForumTag
 
     Coro = Coroutine[Any, Any, "T"]
 

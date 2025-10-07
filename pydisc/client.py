@@ -27,21 +27,21 @@ from __future__ import annotations
 import asyncio
 import logging
 from typing import Any, Generic
-from typing_extensions import TypeVar
 
 import aiohttp
+from typing_extensions import TypeVar
 
-from .errors import GatewayConnectionClosed, GatewayReconnectNeeded, HTTPException, PriviligedIntentsRequired
 from .backoff import ExponentialBackoff
+from .cache import CacheProtocol, DefaultCache
+from .connection import ConnectionState
+from .errors import GatewayConnectionClosed, GatewayReconnectNeeded, HTTPException, PriviligedIntentsRequired
+from .events import EventRouter
 from .flags import Intents
 from .http import RESTHandler
-from .connection import ConnectionState
-from .cache import DefaultCache, CacheProtocol
-from .websockets import DiscordWebSocketPoller
-from .events import EventRouter
-from .missing import MissingOr, MISSING
-from .user import ClientUser
 from .message import Message
+from .missing import MISSING, MissingOr
+from .user import ClientUser
+from .websockets import DiscordWebSocketPoller
 
 C = TypeVar("C", bound=CacheProtocol, covariant=True, default=DefaultCache)
 _log = logging.getLogger(__name__)

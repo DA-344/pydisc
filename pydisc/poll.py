@@ -27,9 +27,9 @@ from __future__ import annotations
 import datetime
 from typing import TYPE_CHECKING, Any, Self
 
-from .enums import PollLayoutType, MessageType, try_enum
 from .emoji import Emoji
-from .missing import MissingOr, MISSING
+from .enums import MessageType, PollLayoutType, try_enum
+from .missing import MISSING, MissingOr
 from .utils import parse_time
 
 if TYPE_CHECKING:

@@ -24,9 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import Generic, Literal, TypeVar, Union
-
 from enum import Enum, auto
+from typing import Generic, Literal, TypeVar, Union
 
 T = TypeVar("T")
 V = TypeVar("V")

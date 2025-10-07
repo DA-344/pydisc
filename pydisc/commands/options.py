@@ -24,8 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from enum import Enum
 import inspect
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar, Union, get_args as _get_args
 
 from pydisc.enums import ChannelType, CommandOptionType, Locale, try_enum

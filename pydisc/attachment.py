@@ -29,12 +29,12 @@ from typing import IO, TYPE_CHECKING, Any
 
 import yarl
 
-from .missing import MISSING, MissingOr
-from .flags import AttachmentFlags
-from .mixins import Hashable
+from . import utils
 from .asset import AssetMixin
 from .file import File
-from . import utils
+from .flags import AttachmentFlags
+from .missing import MISSING, MissingOr
+from .mixins import Hashable
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

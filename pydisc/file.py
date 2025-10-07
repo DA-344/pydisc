@@ -24,8 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-import os
 import io
+import os
 from typing import IO, Any
 
 from .flags import AttachmentFlags

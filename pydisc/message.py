@@ -24,35 +24,36 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import datetime
-from functools import cached_property, partial
 import re
+from collections.abc import Sequence
+from functools import cached_property, partial
 from typing import TYPE_CHECKING, Any, Self
+
 from typing_extensions import deprecated
 
 from .abc import Channel, Snowflake
-from .user import User
-from .role import Role
+from .allowed_mentions import AllowedMentions
+from .application_info import ApplicationInfo
+from .attachment import Attachment
 from .channels import Thread
 from .channels.factory import channel_factory
-from .attachment import Attachment
+from .components import Component, _pd_to_component
 from .embed import Embed
-from .reaction import Reaction
-from .application_info import ApplicationInfo
-from .components import _pd_to_component, Component
-from .sticker import Sticker, StickerItem
-from .poll import Poll
-from .mixins import Hashable
-from .utils import _get_snowflake, parse_time
-from .missing import MissingOr, MISSING
+from .enums import InteractionType, MessageActivityType, MessageReferenceType, MessageType, try_enum
 from .file import File
-from .object import Object
 from .flags import MessageFlags
 from .http import handle_message_parameters
-from .allowed_mentions import AllowedMentions
-from .enums import InteractionType, MessageActivityType, MessageReferenceType, MessageType, try_enum
 from .member import PartialMember
+from .missing import MISSING, MissingOr
+from .mixins import Hashable
+from .object import Object
+from .poll import Poll
+from .reaction import Reaction
+from .role import Role
+from .sticker import Sticker, StickerItem
+from .user import User
+from .utils import _get_snowflake, parse_time
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol
@@ -386,7 +387,9 @@ class Message(PartialMessage):
         if TYPE_CHECKING:
             pass
         else:
-            self.interaction: MessageInteraction | None = MessageInteraction.from_dict(data.get("interaction"), cache, self.guild)
+            self.interaction: MessageInteraction | None = MessageInteraction.from_dict(
+                data.get("interaction"), cache, self.guild
+            )
             """The interaction data bound to this message.
 
             This attribute is deprecated, consider using :attr:`interaction_metadata`.
@@ -398,10 +401,7 @@ class Message(PartialMessage):
             """
 
     def _update(self, data: dict[str, Any]) -> None:
-        for key in (
-            "content", "tts", "mention_everyone", "nonce",
-            "pinned"
-        ):
+        for key in ("content", "tts", "mention_everyone", "nonce", "pinned"):
             if key in data:
                 setattr(self, key, data[key])
 

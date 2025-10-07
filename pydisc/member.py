@@ -21,28 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Any, Self
 
-from .flags import MemberFlags, PublicUserFlags
 from .abc import Snowflake
 from .asset import Asset
-from .role import Role
-from .object import Object
+from .flags import MemberFlags, PublicUserFlags
 from .mixins import Hashable
+from .object import Object
+from .role import Role
 from .user import AvatarDecoration, User
-from .utils import parse_time, _get_snowflake
+from .utils import _get_snowflake, parse_time
 
 if TYPE_CHECKING:
     from .abc import Channel
+    from .cache._types import CacheProtocol
+    from .collectibles import Collectibles
     from .color import Color
     from .guild import Guild
-    from .cache._types import CacheProtocol
     from .user import PrimaryGuild
-    from .collectibles import Collectibles
 
 __all__ = (
     "PartialMember",
@@ -166,7 +167,9 @@ class Member(PartialMember, Hashable):
 
         To check whether a user is still timed out, you should use :meth:`is_timed_out`.
         """
-        self.guild_avatar_decoration: AvatarDecoration | None = AvatarDecoration.from_dict(data.get("avatar_decoration_data"), cache)
+        self.guild_avatar_decoration: AvatarDecoration | None = AvatarDecoration.from_dict(
+            data.get("avatar_decoration_data"), cache
+        )
         """The guild avatar decoration data of this member."""
 
     def _update(self, data: dict[str, Any], guild: Guild | None) -> None:
@@ -188,7 +191,11 @@ class Member(PartialMember, Hashable):
                 setattr(self, key, data[key] or False)
 
         for key, attr, factory in (
-            ("premium_since", "", parse_time,),
+            (
+                "premium_since",
+                "",
+                parse_time,
+            ),
             ("communication_disabled_until", "timed_out_until", parse_time),
             ("avatar_decoration_data", "guild_avatar_decoration", partial(AvatarDecoration.from_dict, cache=self._cache)),
         ):

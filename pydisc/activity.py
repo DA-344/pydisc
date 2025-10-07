@@ -28,9 +28,9 @@ import datetime
 from typing import TYPE_CHECKING, Any
 
 from .asset import Asset
-from .flags import ActivityFlags
-from .enums import ActivityStatusDisplayType, ActivityType, try_enum
 from .emoji import Emoji
+from .enums import ActivityStatusDisplayType, ActivityType, try_enum
+from .flags import ActivityFlags
 from .utils import _get_snowflake
 
 if TYPE_CHECKING:

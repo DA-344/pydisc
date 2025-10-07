@@ -27,10 +27,10 @@ from __future__ import annotations
 import datetime
 from typing import TYPE_CHECKING, Any
 
-from .enums import IntegrationType, IntegrationExpireBehavior, try_enum
+from .enums import IntegrationExpireBehavior, IntegrationType, try_enum
 from .mixins import Hashable
-from .utils import _get_snowflake, parse_time
 from .user import User
+from .utils import _get_snowflake, parse_time
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

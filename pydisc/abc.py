@@ -24,29 +24,29 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import datetime
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from .missing import MISSING, MissingOr
 from .asset import Asset
-from .enums import ChannelType
-from .utils import checkable_protocol, Protocol, snowflake_to_time
-from .flags import MessageFlags, PublicUserFlags
 from .color import Color
+from .enums import ChannelType
+from .flags import MessageFlags, PublicUserFlags
 from .http import handle_message_parameters
+from .missing import MISSING, MissingOr
+from .utils import Protocol, checkable_protocol, snowflake_to_time
 
 if TYPE_CHECKING:
+    from .allowed_mentions import AllowedMentions
     from .cache._types import CacheProtocol
-    from .user import AvatarDecoration, PrimaryGuild, User as FullUser
     from .collectibles import Collectibles
+    from .components import Component
     from .embed import Embed
     from .file import File
-    from .allowed_mentions import AllowedMentions
-    from .components import Component
-    from .poll import Poll
-    from .message import PartialMessage, Message, MessageReference
     from .guild import Guild
+    from .message import Message, MessageReference, PartialMessage
+    from .poll import Poll
+    from .user import AvatarDecoration, PrimaryGuild, User as FullUser
 
 __all__ = (
     "Snowflake",

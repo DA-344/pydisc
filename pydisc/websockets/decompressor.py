@@ -24,9 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import Protocol
 import zlib
-
+from typing import Protocol
 
 try:
     import zstandard  # pyright: ignore[reportMissingImports]

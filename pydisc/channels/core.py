@@ -24,8 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 import datetime
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from pydisc.abc import Channel, User
@@ -34,7 +34,7 @@ from pydisc.flags import ChannelFlags, Permissions
 from pydisc.object import Object
 from pydisc.overwrites import PermissionOverwrite
 from pydisc.role import Role
-from pydisc.utils import parse_time, _get_snowflake
+from pydisc.utils import _get_snowflake, parse_time
 
 if TYPE_CHECKING:
     from pydisc.cache._types import CacheProtocol

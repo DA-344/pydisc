@@ -24,9 +24,9 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 import random
 import time
+from collections.abc import Callable
 from typing import Generic, Literal, TypeVar, overload
 
 T = TypeVar("T", bool, Literal[True], Literal[False])

@@ -28,17 +28,17 @@ import datetime
 from typing import TYPE_CHECKING, Any, Literal, overload
 
 from .abc import Channel
-from .object import Object
-from .missing import MissingOr, MISSING
+from .enums import AutoModActionType, AutoModEventType, AutoModKeywordPresetType, AutoModTriggerType, try_enum
+from .missing import MISSING, MissingOr
 from .mixins import Hashable
-from .enums import AutoModEventType, AutoModTriggerType, AutoModKeywordPresetType, AutoModActionType, try_enum
+from .object import Object
 
 if TYPE_CHECKING:
     from . import abc
-    from .user import User
+    from .cache._types import CacheProtocol
     from .guild import Guild
     from .role import Role
-    from .cache._types import CacheProtocol
+    from .user import User
 
 __all__ = (
     "AutoModTriggerMetadata",

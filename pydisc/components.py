@@ -24,12 +24,12 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from collections.abc import Generator
 import os
+from collections.abc import Generator
 from typing import TYPE_CHECKING, Any, Literal, Self, overload
 
-from .enums import ButtonStyle, ComponentType, try_enum
 from .emoji import Emoji
+from .enums import ButtonStyle, ComponentType, try_enum
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

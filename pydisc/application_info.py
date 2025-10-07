@@ -26,13 +26,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
 
-from .flags import Permissions
 from .asset import Asset
-from .user import PartialUser
-from .utils import _get_snowflake
+from .flags import Permissions
+from .guild import Guild, PartialGuild
 from .mixins import Hashable
 from .teams import Team
-from .guild import PartialGuild, Guild
+from .user import PartialUser
+from .utils import _get_snowflake
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

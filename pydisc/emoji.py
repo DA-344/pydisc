@@ -32,8 +32,8 @@ from .mixins import Hashable
 from .utils import _get_snowflake
 
 if TYPE_CHECKING:
-    from .user import User
     from .cache._types import CacheProtocol
+    from .user import User
 
 CUSTOM_EMOJI_PATTERN = re.compile(r"<?(?:(?P<animated>a)?:)?(?P<name>[A-Za-z0-9\_]+):(?P<id>[0-9]{13,20})>?")
 

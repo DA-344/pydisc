@@ -23,10 +23,11 @@ DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import annotations
+
 from typing import Any
 
-from .missing import MissingOr, MISSING
 from .enums import ApplicationRoleConnectionMetadataType, Locale, try_enum
+from .missing import MISSING, MissingOr
 
 __all__ = ("ApplicationRoleConnectionMetadata",)
 

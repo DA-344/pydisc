@@ -28,7 +28,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from .abc import Snowflake
-from .missing import MissingOr, MISSING
+from .missing import MISSING, MissingOr
 
 __all__ = ("AllowedMentions",)
 

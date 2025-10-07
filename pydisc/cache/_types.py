@@ -27,22 +27,23 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Self
 
 import aiohttp
+
 from pydisc.utils import Protocol
 
 if TYPE_CHECKING:
     from pydisc import abc
+    from pydisc.channels import Thread
     from pydisc.client import Client
-    from pydisc.guild import Guild
-    from pydisc.user import User
-    from pydisc.emoji import Emoji
-    from pydisc.commands import Command, Group, ContextMenu
-    from pydisc.message import Message
-    from pydisc.sticker import Sticker
-    from pydisc.soundboard import SoundboardSound
+    from pydisc.commands import Command, ContextMenu, Group
     from pydisc.components import Component
+    from pydisc.emoji import Emoji
+    from pydisc.guild import Guild
     from pydisc.http import RESTHandler
     from pydisc.member import Member
-    from pydisc.channels import Thread
+    from pydisc.message import Message
+    from pydisc.soundboard import SoundboardSound
+    from pydisc.sticker import Sticker
+    from pydisc.user import User
 
 __all__ = ("CacheProtocol",)
 

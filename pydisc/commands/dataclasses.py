@@ -24,8 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Coroutine, Sequence
 import inspect
+from collections.abc import Callable, Coroutine, Sequence
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from pydisc.enums import CommandType
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from typing_extensions import Concatenate, ParamSpec
 
     from pydisc import abc
-    from pydisc.interactions import CommandInteraction, AutocompleteInteraction
+    from pydisc.interactions import AutocompleteInteraction, CommandInteraction
 
     from .cog import Cog
     from .options import Choice

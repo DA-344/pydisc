@@ -27,10 +27,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Self
 
 from .asset import Asset
-from .mixins import Hashable
-from .utils import _get_snowflake
 from .enums import StickerFormatType, StickerType, try_enum
+from .mixins import Hashable
 from .user import User
+from .utils import _get_snowflake
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol

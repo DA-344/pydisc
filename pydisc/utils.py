@@ -25,22 +25,22 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import datetime
+import typing
+from base64 import b64decode, b64encode
 from collections.abc import AsyncIterable, Callable, Coroutine, Iterable
 from enum import Flag
 from functools import partial
-import typing
-from typing import TYPE_CHECKING, Any, ClassVar, ForwardRef, Generic, Literal, TypeVar, Union, overload
 from operator import attrgetter
-from base64 import b64decode, b64encode
+from typing import TYPE_CHECKING, Any, ClassVar, ForwardRef, Generic, Literal, TypeVar, Union, overload
 
 try:
-    from orjson import loads as _from_json, dumps as __to_json  # type: ignore
+    from orjson import dumps as __to_json, loads as _from_json  # type: ignore
 
     def _to_json(obj: Any) -> str:
         return __to_json(obj).decode("utf-8")  # type: ignore
 
 except ImportError:
-    from json import loads as _from_json, dumps as __to_json
+    from json import dumps as __to_json, loads as _from_json
 
     def _to_json(obj: Any) -> str:
         return __to_json(obj, separators=(",", ":"), ensure_ascii=True)
