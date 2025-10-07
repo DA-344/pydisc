@@ -26,12 +26,15 @@ from __future__ import annotations
 import datetime
 from typing import TYPE_CHECKING, Any
 
+from .enums import ChannelType
 from .asset import Asset
 from .mixins import Hashable
 from .utils import parse_time
 from .member import Member, VoiceState
 from .role import Role
-from .channels import GuildChannel, Thread, StageChannel
+from .presences import Presence
+from .channels import GuildChannel, Thread, StageChannel, TextChannel, VoiceChannel
+from .scheduled_event import ScheduledEvent
 
 if TYPE_CHECKING:
     from .cache._types import CacheProtocol
@@ -149,8 +152,10 @@ class Guild(PartialGuild):
         self._threads_: dict[int, Thread] = {}
         self._presences_: dict[int, Presence] = {}
         self._stages_: dict[int, StageChannel]
+        self._events_: dict[int, ScheduledEvent] = {}
 
         self._member_count: int | None = data.get("member_count")
+        self._large: bool | None = data.get("large")
 
     @property
     def joined_at(self) -> datetime.datetime | None:
@@ -168,6 +173,41 @@ class Guild(PartialGuild):
         """The current user's member object in this guild, if applicable."""
         return self._cache.client.user and self.get_member(self._cache.client.user.id)
 
+    @property
+    def members(self) -> list[Member]:
+        """Returns the members of this guild."""
+        return list(self._members_.values())
+
+    @property
+    def roles(self) -> list[Role]:
+        """Returns the roles of this guild."""
+        return list(self._roles_.values())
+
+    @property
+    def channels(self) -> list[GuildChannel | Thread]:
+        """Returns all channels from this guild."""
+        return list(self._channels_.values()) + self.threads + self.stage_channels
+
+    @property
+    def text_channels(self) -> list[TextChannel]:
+        """Returns all text channels from this guild."""
+        return [ch for ch in self._channels_.values() if ch.type in (ChannelType.text, ChannelType.announcement)]  # type: ignore
+
+    @property
+    def voice_channels(self) -> list[VoiceChannel]:
+        """Returns all voice channels from this guild."""
+        return [ch for ch in self._channels_.values() if ch.type is ChannelType.voice]  # type: ignore
+
+    @property
+    def stage_channels(self) -> list[StageChannel]:
+        """Returns all stage channels from this guild."""
+        return list(self._stages_.values())
+
+    @property
+    def threads(self) -> list[Thread]:
+        """Returns all threads from this guild."""
+        return list(self._threads_.values())
+
     def get_member(self, id: int, /) -> Member | None:
         """Gets a member from this guild with :attr:`Member.id` as ``id``, or :data:`None`."""
         return self._members_.get(id)
@@ -178,7 +218,15 @@ class Guild(PartialGuild):
 
     def get_channel(self, id: int, /) -> GuildChannel | None:
         """Gets a channel from this guild with :attr:`GuildChannel.id` as ``id``, or :data:`None`."""
-        return self._channels_.get(id)
+        return self._channels_.get(id) or self._stages_.get(id)
+
+    def get_thread(self, id: int, /) -> Thread | None:
+        """Gets a thread from this guild with :attr:`Thread.id` as ``id``, or :data:`None`."""
+        return self._threads_.get(id)
+
+    def get_channel_or_thread(self, id: int, /) -> GuildChannel | Thread | None:
+        """Gets a channel or thread from this guild, with :attr:`Channel.id` as ``id`` or :data:`None`."""
+        return self.get_channel(id) or self.get_thread(id)
 
     def is_partial(self) -> bool:
         return False

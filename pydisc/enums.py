@@ -65,6 +65,9 @@ __all__ = (
     "MessageReferenceType",
     "MessageActivityType",
     "DefaultAvatarType",
+    "ScheduledEventEntityType",
+    "ScheduledEventPrivacyLevel",
+    "ScheduledEventStatus",
     "try_enum",
 )
 
@@ -597,6 +600,29 @@ class DefaultAvatarType(Enum):
     orange = 3
     red = 4
     pink = 5
+
+
+class ScheduledEventEntityType(Enum):
+    """Represents the entity type of an scheduled event."""
+
+    stage = 1
+    voice = 2
+    external = 3
+
+
+class ScheduledEventPrivacyLevel(Enum):
+    """Represents the privacy level of an event."""
+
+    guild_only = 2
+
+
+class ScheduledEventStatus(Enum):
+    """Represents the status for a scheduled event."""
+
+    scheduled = 1
+    active = 2
+    completed = 3
+    canceled = 4
 
 
 def try_enum(cls: type[E], value: Any) -> E:
